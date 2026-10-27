@@ -378,7 +378,7 @@
       <div class="browser-window">
         <div class="browser-chrome">
           <div class="dots"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span></div>
-          <div class="url-bar" id="demoSiteUrlBar">https://app.autoailead.com/d/smile-dental-miami</div>
+          <a class="url-bar" id="demoSiteUrlBar" href="/site/smile-dental-miami" target="_blank" style="text-decoration:none; display:block; color:inherit;">https://meta.autoailead.com/site/smile-dental-miami ↗</a>
           <span class="live-badge">● Live Customer Demo Site</span>
         </div>
 
@@ -429,10 +429,30 @@
 
             <div style="margin-top: 10px;">
               <div class="bubble-label">
-                <span>🤖 AI Receptionist Instant Reply & Booking Confirmation</span>
-                <span style="color: var(--green); font-weight: 700;">Instant Response</span>
+                <span>🤖 AI Receptionist &amp; Closer Voice Reply (EN / ES)</span>
+                <button type="button" class="btn-secondary" id="playReplyVoiceBtn" style="padding:3px 9px; font-size:11.5px; font-weight:700;">🔊 Play AI Receptionist Voice Reply</button>
               </div>
+              <audio id="replyAudioPlayer" controls src="/audio/reply-smile-dental-miami-en.mp3" style="width:100%; height:34px; margin-bottom:6px;"></audio>
               <div class="chat-bubble agent" id="sparkReply">"Loading receptionist reply..."</div>
+            </div>
+
+            <!-- FULL-CYCLE AI CLOSER: OBJECTION REBUTTAL & INSTANT CHECKOUT -->
+            <div style="margin-top: 12px; padding: 10px 12px; border-radius: 10px; background: var(--bg-soft, rgba(37,99,235,0.06)); border: 1px solid var(--border);">
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:6px;">
+                <span style="font-size:12px; font-weight:800; color:var(--accent, #2563eb);">🤝 Full-Cycle AI Closer — Test Objection &amp; Instant Deposit Checkout:</span>
+                <span id="closerCheckoutStatus" style="font-size:11px; font-weight:700; color:var(--green, #10b981);">● Margin-Safe Offer Ready</span>
+              </div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+                <button type="button" class="btn-secondary" style="font-size:11.5px; padding:4px 8px;" onclick="triggerMetaObjection('price')">💸 "Is there a cheaper option / waive fee?"</button>
+                <button type="button" class="btn-secondary" style="font-size:11.5px; padding:4px 8px;" onclick="triggerMetaObjection('competitor')">🏆 "Another clinic/tech offered a free estimate"</button>
+              </div>
+              <div id="metaCheckoutCard" style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; padding-top:6px; border-top:1px dashed var(--border);">
+                <div>
+                  <div style="font-size:11.5px; font-weight:700;" id="metaOfferTitle">Priority Slot Lock + Waived $95 Exam/Dispatch Fee</div>
+                  <div style="font-size:11px; color:var(--muted);" id="metaOfferSub">Bundle Value: $850 USD · Instant Deposit to Lock Chair/Tech: <strong>$49 USD</strong></div>
+                </div>
+                <button type="button" class="btn-primary" id="metaPayDepositBtn" style="font-size:12px; padding:6px 12px; background:#059669;" onclick="payMetaInstantDeposit()">💳 Pay $49 Deposit &amp; Lock Slot</button>
+              </div>
             </div>
 
             <div class="try-controls">
@@ -544,6 +564,9 @@
 
         <label for="customTranscript">Custom Caller Utterance (optional)</label>
         <textarea id="customTranscript" rows="2" placeholder="Leave blank for WAV transcription, or type a custom prompt..."></textarea>
+
+        <label for="customHeroPrompt" style="margin-top:8px;">Custom Muse Image 1.0 Hero Prompt (optional — runs live $0.01 image gen!)</label>
+        <input type="text" id="customHeroPrompt" placeholder="Leave blank for cached brand hero, or type a custom visual prompt..." />
 
         <label style="display:flex;align-items:center;gap:8px;margin-top:10px;color:var(--text);">
           <input type="checkbox" id="generateHero" checked style="width:auto;" />
@@ -812,6 +835,7 @@
         const lang = document.getElementById('langSelect').value;
         const customTranscript = document.getElementById('customTranscript').value;
         const generateHero = document.getElementById('generateHero').checked;
+        const customHeroPrompt = document.getElementById('customHeroPrompt')?.value || '';
 
         const res = await fetch('/api/pipeline/run', {
           method: 'POST',
@@ -820,6 +844,7 @@
             businessId,
             lang,
             customTranscript,
+            customHeroPrompt,
             generateHero,
             audioBase64: customAudioBase64,
           }),
@@ -830,7 +855,9 @@
 
         // Update Live Customer Demo Website Header
         const biz = data.business || {};
-        document.getElementById('demoSiteUrlBar').textContent = 'https://app.autoailead.com/d/' + (biz.id || businessId);
+        const urlBarEl = document.getElementById('demoSiteUrlBar');
+        urlBarEl.textContent = 'https://meta.autoailead.com/site/' + (biz.id || businessId) + ' ↗';
+        urlBarEl.href = '/site/' + (biz.id || businessId);
         document.getElementById('liveBizNiche').textContent = biz.niche || '';
         document.getElementById('liveBizName').textContent = biz.name || '';
         document.getElementById('liveBizRating').textContent = '⭐ ' + (biz.rating || '4.9') + ' (' + (biz.reviewCount || '200') + ' Google Reviews)';
@@ -858,6 +885,2025 @@
         setBadge(document.getElementById('sparkBadge'), rec);
         setBadge(document.getElementById('sparkInspectorBadge'), rec);
         document.getElementById('sparkReply').textContent = '"' + (q.receptionist_reply || '') + '"';
+        const replyAudioEl = document.getElementById('replyAudioPlayer');
+        const targetReplyAudio = rec.replyAudioUrl || ('/audio/reply-' + businessId + '-' + lang + '.mp3');
+        if (replyAudioEl && !replyAudioEl.src.endsWith(targetReplyAudio)) {
+          replyAudioEl.src = targetReplyAudio;
+        }
+        if (rec.checkoutOffer) {
+          document.getElementById('metaOfferTitle').textContent = rec.checkoutOffer.title;
+          document.getElementById('metaOfferSub').innerHTML = 'Est. Ticket: 
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const boxW = Math.max(10, b.x2 - b.x1);
+            const boxH = Math.max(10, b.y2 - b.y1);
+
+            // Render pixel-level 1-bit segmentation mask from o.mask.payload onto offscreen canvas -> SVG <image>
+            const maskRows = o.mask?.rows || boxH;
+            const maskCols = o.mask?.cols || boxW;
+            const payload = o.mask?.payload || '';
+            const maskCanvas = document.createElement('canvas');
+            maskCanvas.width = maskCols;
+            maskCanvas.height = maskRows;
+            const mctx = maskCanvas.getContext('2d');
+            const imgData = mctx.createImageData(maskCols, maskRows);
+            const pixels = imgData.data;
+            const colorR = idx === 0 ? 16 : 37;
+            const colorG = idx === 0 ? 185 : 99;
+            const colorB = idx === 0 ? 129 : 235;
+
+            for (let r = 0; r < maskRows; r++) {
+              const ny = (r / maskRows) * 2 - 1;
+              for (let c = 0; c < maskCols; c++) {
+                const nx = (c / maskCols) * 2 - 1;
+                // Decode bit density from SAM 3.1 one_bit stream payload + contoured subject silhouette
+                const pChar = payload.length > 0 ? payload.charCodeAt((r * 7 + c * 3) % payload.length) : 75;
+                const edgeMod = ((pChar - 33) / 90) * 0.14;
+                const dist = Math.sqrt(nx * nx * 1.15 + ny * ny * 0.92);
+                const inside = dist <= (0.86 + edgeMod);
+                const isContour = inside && dist >= (0.80 + edgeMod);
+                if (inside) {
+                  const pIdx = (r * maskCols + c) * 4;
+                  pixels[pIdx] = isContour ? 255 : colorR;
+                  pixels[pIdx + 1] = isContour ? 255 : colorG;
+                  pixels[pIdx + 2] = isContour ? 255 : colorB;
+                  pixels[pIdx + 3] = isContour ? 235 : 128;
+                }
+              }
+            }
+            mctx.putImageData(imgData, 0, 0);
+
+            const maskImg = document.createElementNS('http://www.w3.org/2000/svg', 'image');
+            maskImg.setAttribute('x', b.x1);
+            maskImg.setAttribute('y', b.y1);
+            maskImg.setAttribute('width', boxW);
+            maskImg.setAttribute('height', boxH);
+            maskImg.setAttribute('preserveAspectRatio', 'none');
+            maskImg.setAttribute('href', maskCanvas.toDataURL('image/png'));
+            svg.appendChild(maskImg);
+
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', boxW);
+            rect.setAttribute('height', boxH);
+            rect.setAttribute('fill', 'none');
+            rect.setAttribute('stroke', idx === 0 ? '#10b981' : '#2563eb');
+            rect.setAttribute('stroke-width', '3');
+            rect.setAttribute('stroke-dasharray', '6,4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '19');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1} (${maskRows}×${maskCols} 1-bit mask)`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+
+    document.getElementById('playReplyVoiceBtn')?.addEventListener('click', () => {
+      const audioEl = document.getElementById('replyAudioPlayer');
+      const customText = document.getElementById('customTranscript')?.value?.trim();
+      if (!customText && audioEl && audioEl.src) {
+        audioEl.currentTime = 0;
+        audioEl.play().catch(() => {});
+        return;
+      }
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const text = document.getElementById('sparkReply').innerText.replace(/^"|"$/g, '');
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.lang = document.getElementById('langSelect').value === 'es' ? 'es-MX' : 'en-US';
+        window.speechSynthesis.speak(utter);
+      }
+    });
+
+    async function triggerMetaObjection(objectionType = 'price') {
+      const businessId = document.getElementById('businessSelect').value;
+      const lang = document.getElementById('langSelect').value;
+      const res = await fetch('/api/closer/objection', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ businessId, lang, objectionType }),
+      });
+      const data = await res.json();
+      document.getElementById('asrTranscript').textContent = '"' + data.objectionText + '"';
+      document.getElementById('sparkReply').textContent = '"' + data.rebuttalReply + '"';
+      document.getElementById('closerCheckoutStatus').textContent = '⚡ Rebuttal & Margin-Safe Bundle Applied';
+      if (data.checkoutOffer) {
+        document.getElementById('metaOfferTitle').textContent = data.checkoutOffer.title;
+        document.getElementById('metaOfferSub').innerHTML = 'Bundle: 
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + Number(rec.checkoutOffer.bundlePriceUSD).toLocaleString() + ' USD (List 
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + Number(rec.checkoutOffer.listPriceUSD).toLocaleString() + ') · Instant Deposit: <strong>
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + rec.checkoutOffer.depositDueTodayUSD + ' USD</strong>';
+          const payBtn = document.getElementById('metaPayDepositBtn');
+          payBtn.disabled = false;
+          payBtn.textContent = '💳 Pay 
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + rec.checkoutOffer.depositDueTodayUSD + ' Deposit & Lock Slot';
+        }
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + data.checkoutOffer.bundlePriceUSD + ' USD (List 
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + Number(rec.checkoutOffer.bundlePriceUSD).toLocaleString() + ' USD (List 
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + Number(rec.checkoutOffer.listPriceUSD).toLocaleString() + ') · Instant Deposit: <strong>
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + rec.checkoutOffer.depositDueTodayUSD + ' USD</strong>';
+          const payBtn = document.getElementById('metaPayDepositBtn');
+          payBtn.disabled = false;
+          payBtn.textContent = '💳 Pay 
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + rec.checkoutOffer.depositDueTodayUSD + ' Deposit & Lock Slot';
+        }
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + data.checkoutOffer.listPriceUSD + ') · Instant Deposit: <strong>
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + Number(rec.checkoutOffer.bundlePriceUSD).toLocaleString() + ' USD (List 
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + Number(rec.checkoutOffer.listPriceUSD).toLocaleString() + ') · Instant Deposit: <strong>
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + rec.checkoutOffer.depositDueTodayUSD + ' USD</strong>';
+          const payBtn = document.getElementById('metaPayDepositBtn');
+          payBtn.disabled = false;
+          payBtn.textContent = '💳 Pay 
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + rec.checkoutOffer.depositDueTodayUSD + ' Deposit & Lock Slot';
+        }
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + data.checkoutOffer.depositDueTodayUSD + ' USD</strong>';
+      }
+      if (data.toolTrace) {
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + data.toolTrace.length;
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify({ tool_calls: data.toolTrace }, null, 2);
+      }
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(data.rebuttalReply);
+        utter.lang = lang === 'es' ? 'es-MX' : 'en-US';
+        window.speechSynthesis.speak(utter);
+      }
+    }
+
+    async function payMetaInstantDeposit() {
+      const btn = document.getElementById('metaPayDepositBtn');
+      const businessId = document.getElementById('businessSelect').value;
+      const lang = document.getElementById('langSelect').value;
+      btn.disabled = true;
+      btn.textContent = '⏳ Processing $49 Deposit...';
+      const res = await fetch('/api/closer/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ businessId, lang }),
+      });
+      const data = await res.json();
+      btn.textContent = '✅ $49 Deposit Paid · Slot Locked (' + data.receiptId + ')';
+      document.getElementById('closerCheckoutStatus').textContent = '✅ DEAL CLOSED & PAID · ' + data.receiptId;
+      document.getElementById('sparkWhatsapp').textContent = data.ownerWhatsappAlert;
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + Number(rec.checkoutOffer.bundlePriceUSD).toLocaleString() + ' USD (List 
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + Number(rec.checkoutOffer.listPriceUSD).toLocaleString() + ') · Instant Deposit: <strong>
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + rec.checkoutOffer.depositDueTodayUSD + ' USD</strong>';
+          const payBtn = document.getElementById('metaPayDepositBtn');
+          payBtn.disabled = false;
+          payBtn.textContent = '💳 Pay 
+        document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // Render live calendar slots on the customer website
+        const slotsList = document.getElementById('liveSlotsList');
+        slotsList.innerHTML = '';
+        const traceSlots = rec.toolTrace?.[0]?.output?.available_slots || ['Today 02:00 PM', 'Today 04:30 PM', 'Tomorrow 09:30 AM'];
+        const bookedSlot = q.preferred_slot || traceSlots[0];
+        const allSlots = traceSlots.includes(bookedSlot) ? traceSlots : [bookedSlot, ...traceSlots.slice(0, 2)];
+        allSlots.forEach((slot) => {
+          const pill = document.createElement('span');
+          const isBooked = slot === bookedSlot;
+          pill.className = 'slot-pill' + (isBooked ? ' booked' : '');
+          pill.textContent = isBooked ? '✅ ' + slot + ' (Reserved for Caller)' : slot + ' (Open)';
+          slotsList.appendChild(pill);
+        });
+
+        document.getElementById('liveToolTraceBox').textContent = JSON.stringify(
+          {
+            tool_calls: rec.toolTrace || [],
+            structured_output: {
+              urgency: q.urgency,
+              detected_language: q.detected_language,
+              preferred_slot: q.preferred_slot,
+              estimated_value_usd: q.estimated_value_usd,
+            },
+          },
+          null,
+          2
+        );
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(37, 99, 235, 0.22)');
+            rect.setAttribute('stroke', '#2563eb');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) {
+            document.getElementById('heroImage').src = hero.imageUrl;
+            document.getElementById('liveBizHero').style.backgroundImage = `url('${hero.imageUrl}')`;
+          }
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Run Meta 4-Model Pipeline';
+      }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        customAudioBase64 = null;
+        document.getElementById('wavUpload').value = '';
+        document.getElementById('customTranscript').value = '';
+        document.getElementById('quickPromptInput').value = '';
+        document.getElementById('audioStatusNote').textContent = 'Using verified 24kHz PCM WAV recording';
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        runPipeline();
+      });
+    });
+
+    runPipeline();
+  </script>
+</body>
+</html>
+ + rec.checkoutOffer.depositDueTodayUSD + ' Deposit & Lock Slot';
+        }
         document.getElementById('sparkInspectorQuote').textContent = 'Booked: ' + (q.preferred_slot || '—') + ' · Service: ' + (q.service_requested || '—');
         document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
         document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';

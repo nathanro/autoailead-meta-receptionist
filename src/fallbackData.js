@@ -59,7 +59,7 @@ export const DEMO_BUSINESSES = {
     languages: ['English', 'Spanish'],
     samplePhotoUrl: '/photos/lone-star-hvac-austin.jpg',
     samTargetConcept: 'technician',
-    heroPrompt: 'Clean modern residential HVAC service van parked in front of an Austin Texas home at golden hour, crisp commercial photography',
+    heroPrompt: 'Clean modern white residential HVAC service van clearly branded with LONE STAR AC & HEATING text on the side, parked in front of a modern Austin Texas home at golden hour, technician carrying tool bag, crisp commercial photography',
     presets: {
       en: {
         audioLabel: 'Caller (EN): AC blowing warm air, 94°F in Austin',

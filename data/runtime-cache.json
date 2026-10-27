@@ -35,7 +35,7 @@
         "model": "muse-spark-1.3",
         "endpoint": "/v1/chat/completions",
         "qualification": {
-          "caller_name": "Not provided",
+          "caller_name": "Marcus Vance",
           "detected_language": "en",
           "estimated_value_usd": 1200,
           "owner_whatsapp_summary": "🚨 HIGH urgency: Cracked front dental crown eating lunch in Brickell, flying out Friday morning. Requested Tomorrow 09:30 AM - CONFIRMED AVAILABLE (Today 02:00 PM, 04:30 PM also open). Needs emergency crown repair before flight. Language: EN.",
@@ -59,6 +59,22 @@
                 "Tomorrow 09:30 AM"
               ]
             }
+          },
+          {
+            "tool": "book_appointment",
+            "args": {
+              "business_id": "smile-dental-miami",
+              "caller_name": "Marcus Vance",
+              "slot": "Tomorrow 09:30 AM",
+              "service": "Emergency Crown Repair & Exam"
+            },
+            "output": {
+              "status": "confirmed",
+              "booking_id": "bk_sd_930am",
+              "slot": "Tomorrow 09:30 AM",
+              "crm_synced": true,
+              "whatsapp_alert_queued": true
+            }
           }
         ],
         "latencyMs": 7470,
@@ -67,6 +83,14 @@
           "completion_tokens": 1992,
           "cached_tokens": 0,
           "total_tokens": 3149
+        },
+        "replyAudioUrl": "/audio/reply-smile-dental-miami-en.mp3",
+        "checkoutOffer": {
+          "offerId": "chk_sd_en_49",
+          "title": "Priority Emergency Crown Slot Lock + $95 Exam/X-Ray Credited to Crown",
+          "listPriceUSD": 945,
+          "bundlePriceUSD": 850,
+          "depositDueTodayUSD": 49
         }
       },
       "createdAt": "2026-10-27T02:55:09.166Z"
@@ -123,7 +147,7 @@
         "model": "muse-spark-1.3",
         "endpoint": "/v1/chat/completions",
         "qualification": {
-          "caller_name": "No proporcionado",
+          "caller_name": "Valeria Gómez",
           "detected_language": "es",
           "estimated_value_usd": 250,
           "owner_whatsapp_summary": "Lead urgente: Dolor fuerte en muela desde ayer. Habla español, busca dentista en Miami. Solicita HOY 4:30 PM - slot DISPONIBLE confirmado (Today 04:30 PM). Requiere seguimiento inmediato para reservar.",
@@ -147,6 +171,22 @@
                 "Tomorrow 09:30 AM"
               ]
             }
+          },
+          {
+            "tool": "book_appointment",
+            "args": {
+              "business_id": "smile-dental-miami",
+              "caller_name": "Valeria Gómez",
+              "slot": "Today 04:30 PM",
+              "service": "Urgencia Dental — Dolor Agudo Molar"
+            },
+            "output": {
+              "status": "confirmed",
+              "booking_id": "bk_sd_430pm",
+              "slot": "Today 04:30 PM",
+              "crm_synced": true,
+              "whatsapp_alert_queued": true
+            }
           }
         ],
         "latencyMs": 8573,
@@ -155,6 +195,14 @@
           "completion_tokens": 1826,
           "cached_tokens": 0,
           "total_tokens": 2993
+        },
+        "replyAudioUrl": "/audio/reply-smile-dental-miami-es.mp3",
+        "checkoutOffer": {
+          "offerId": "chk_sd_es_49",
+          "title": "Reserva Prioritaria Hoy 4:30 PM + Radiografía Digital Sin Costo",
+          "listPriceUSD": 695,
+          "bundlePriceUSD": 620,
+          "depositDueTodayUSD": 49
         }
       },
       "createdAt": "2026-10-27T02:55:30.084Z"
@@ -227,7 +275,7 @@
         "model": "muse-spark-1.3",
         "endpoint": "/v1/chat/completions",
         "qualification": {
-          "caller_name": "Unknown",
+          "caller_name": "Devon Brooks",
           "detected_language": "en",
           "estimated_value_usd": 350,
           "owner_whatsapp_summary": "🔥 HIGH URGENCY - Upstairs AC not cooling, 94F inside with 2 kids in South Congress. Requested Today 2:00 PM - AVAILABLE and reserved. Needs tech ASAP.",
@@ -251,6 +299,22 @@
                 "Tomorrow 09:30 AM"
               ]
             }
+          },
+          {
+            "tool": "book_appointment",
+            "args": {
+              "business_id": "lone-star-hvac-austin",
+              "caller_name": "Devon Brooks",
+              "slot": "Today 02:00 PM",
+              "service": "Emergency AC Diagnostic & Cooling Repair"
+            },
+            "output": {
+              "status": "confirmed",
+              "booking_id": "bk_ls_200pm",
+              "slot": "Today 02:00 PM",
+              "crm_synced": true,
+              "whatsapp_alert_queued": true
+            }
           }
         ],
         "latencyMs": 8207,
@@ -259,6 +323,14 @@
           "completion_tokens": 2035,
           "cached_tokens": 0,
           "total_tokens": 3195
+        },
+        "replyAudioUrl": "/audio/reply-lone-star-hvac-austin-en.mp3",
+        "checkoutOffer": {
+          "offerId": "chk_ls_en_49",
+          "title": "Priority Today 2:00 PM Tech Dispatch ($89 Dispatch Fee Waived with Repair)",
+          "listPriceUSD": 569,
+          "bundlePriceUSD": 480,
+          "depositDueTodayUSD": 49
         }
       },
       "createdAt": "2026-10-27T02:56:29.736Z"
@@ -295,7 +367,7 @@
         "model": "muse-spark-1.3",
         "endpoint": "/v1/chat/completions",
         "qualification": {
-          "caller_name": "No proporcionado",
+          "caller_name": "Carlos Méndez",
           "detected_language": "es",
           "estimated_value_usd": 249,
           "owner_whatsapp_summary": "Restaurante pequeño en Austin: aire central hace mucho ruido. Cliente pide revisión mañana a las 8:30 AM. Slot disponible confirmado: Tomorrow 08:30 AM. Idioma español. Urgencia media - equipo funciona pero ruidoso en negocio.",
@@ -319,6 +391,22 @@
                 "Thursday 03:00 PM"
               ]
             }
+          },
+          {
+            "tool": "book_appointment",
+            "args": {
+              "business_id": "lone-star-hvac-austin",
+              "caller_name": "Carlos Méndez",
+              "slot": "Tomorrow 08:30 AM",
+              "service": "Diagnóstico & Cotización Comercial Aire Central"
+            },
+            "output": {
+              "status": "confirmed",
+              "booking_id": "bk_ls_830am",
+              "slot": "Tomorrow 08:30 AM",
+              "crm_synced": true,
+              "whatsapp_alert_queued": true
+            }
           }
         ],
         "latencyMs": 11120,
@@ -327,6 +415,14 @@
           "completion_tokens": 2141,
           "cached_tokens": 113,
           "total_tokens": 3299
+        },
+        "replyAudioUrl": "/audio/reply-lone-star-hvac-austin-es.mp3",
+        "checkoutOffer": {
+          "offerId": "chk_ls_es_49",
+          "title": "Visita Especialista Comercial Mañana 8:30 AM + Bono $500 USD en Reemplazo",
+          "listPriceUSD": 7000,
+          "bundlePriceUSD": 6500,
+          "depositDueTodayUSD": 49
         }
       },
       "createdAt": "2026-10-27T02:56:43.145Z"
@@ -339,14 +435,14 @@
       "value": {
         "model": "muse-image-1.0",
         "endpoint": "/v1/images/generations",
-        "prompt": "Clean modern residential HVAC service van parked in front of an Austin Texas home at golden hour, crisp commercial photography",
+        "prompt": "Clean modern white residential HVAC service van clearly branded with LONE STAR AC & HEATING text on the side, parked in front of a modern Austin Texas home at golden hour, technician carrying tool bag, crisp commercial photography",
         "imageUrl": "/generated/hero-8ac62160c596.webp",
         "outputFormat": "webp",
-        "latencyMs": 10691,
+        "latencyMs": 12252,
         "usage": {
-          "input_tokens": 4015,
-          "output_tokens": 963,
-          "total_tokens": 4978
+          "input_tokens": 4037,
+          "output_tokens": 1252,
+          "total_tokens": 5289
         }
       },
       "createdAt": "2026-10-27T02:56:54.874Z"
@@ -361,7 +457,7 @@
         "endpoint": "/v1/responses",
         "concept": "dental chair",
         "imageUrl": "/photos/smile-dental-miami.jpg",
-        "rawStreamPreview": "<0f>0<|box;x1=624;y1=356;x2=696;y2=463;w=900;h=602|><|mask;x=0;y=0;data=108,73,!!!!#+NU@Bgukd/xr$kKi37p=ave*H@L!9I/B1z'(e%%z`SZ?CBDG4A{JeuWKvewoiQS4-HU+:FWd*US(3)*]l)R1_rb*pk`8O&K!bQUg`28MIUkS8kY_-kh'D3X|>,1<|box;x1=385;y1=339;x2=522;y2=565;w=900;h=602|><|mask...",
+        "rawStreamPreview": "<0f>0<|box;x1=624;y1=356;x2=696;y2=463;w=900;h=602|><|mask;x=0;y=0;data=108,73,!!!!#-NU@Bgukd/xr$kKi37p=ave*H@L!9I/B1z'(e%%z`SZ?CBDG4A{JeuWKvewoiQS4-HU+:FWd*US(3)*]l)R1_rb*pk`8O&K!bQUg`28MIUkS8kY_-kf=VXtm|>,1<|box;x1=385;y1=339;x2=522;y2=565;w=900;h=602|><|mask;x=0;y=0;data=227,138,!!!!$2BEoWKrU6ego?G]MFZZtk1+P#D-fWfUM^1UFTt-dby/&`t4]j!e`QG'*g!bcu+&&t=vs-1iNtvsG5*&63=4:i:R]/Fn/?Cv4^wIZz!uipvERS{ehwK*RYfu8Jjc_q(Ob!0^PQ!9C_9$TYCj@9%PZ#(k`PKwLa75X+v)9D0X[=+!d9X:D#NQG%Zk[5DW%K/F[73q[gqQt-pQm6CXJ!7(Gc69#v#F{Y?yw6mM*Lch4$|>\n",
         "objectsCount": 2,
         "objects": [
           {
@@ -379,7 +475,8 @@
             "mask": {
               "rows": 108,
               "cols": 73,
-              "encoding": "one_bit"
+              "encoding": "one_bit",
+              "payload": "!!!#-NU@Bgukd/xr$kKi37p=ave*H@L!9I/B1z'(e%%z`SZ?CBDG4A{JeuWKvewoiQS4-HU+:FWd*US(3)*]l)R1_rb*pk`8O&K!bQUg`28MIUkS8kY_-kf=VXtm"
             }
           },
           {
@@ -397,7 +494,8 @@
             "mask": {
               "rows": 227,
               "cols": 138,
-              "encoding": "one_bit"
+              "encoding": "one_bit",
+              "payload": "!!!$2BEoWKrU6ego?G]MFZZtk1+P#D-fWfUM^1UFTt-dby/&`t4]j!e`QG'*g!bcu+&&t=vs-1iNtvsG5*&63=4:i:R]/Fn/?Cv4^wIZz!uipvERS{ehwK*RYfu8Jjc_q(Ob!0^PQ!9C_9$TYCj@9%PZ#(k`PKwLa75X+v)9D0X[=+!d9X:D#NQG%Zk[5DW%K/F[73q[gqQt-pQm6CXJ!7(Gc69#v#F{Y?yw6mM*Lch4$"
             }
           }
         ],
@@ -415,7 +513,7 @@
         "endpoint": "/v1/responses",
         "concept": "technician",
         "imageUrl": "/photos/lone-star-hvac-austin.jpg",
-        "rawStreamPreview": "<0f>0<|box;x1=542;y1=106;x2=899;y2=599;w=900;h=600|><|mask;x=0;y=0;data=494,358,!!!!$cBj+3fP9]13(YT*RN2^DWy9QSWGsg`wb.O!UTF]498u&TM*jNl(N68ZG*O)O?sl2[R2s?2FG8'X:]X*+2-HCV.R3&RE]={c`A]]*YOiElaA*P%ndsrwaPL-2!PQ/jTAsTfR$%n+@1!+D[oj)tpJq6'x1IO`15jo+5A%ZkXy(D&bMa93...",
+        "rawStreamPreview": "<0f>0<|box;x1=542;y1=106;x2=899;y2=599;w=900;h=600|><|mask;x=0;y=0;data=494,358,!!!!$bBj+3fP9]13(YT*RN2^DWy9QSWGsg`wb.O!UTF]498u&TM*jNl(N68ZG*O)O?sl2[R2s?2FG8'X:]X*+23L{lm.X^r1E*K5Bn@reawm-DXjQtKR4kP4.fr$g1E^'9n#KfIdIROSnQDnq7-WWKMi06Ij0./7Qo8DPcQ!9gmgpe#&/gku^`*Vyn4f3jA(z)Dk&Sa)]c(d%[mN@ifGI7)o9KkRd_wNVP8k?4wPlqILOEu-1CNV.IV%49c_u8pN!eZ61$4#4N:1dFWgEP@B4GHFeLK8Sk^aTP:!!|>,1<|box;x1=165;y1=221;x2=413;y2=599;w=900;h=600|><|mask;x=0;y=0;data=379,249,!!!!%gBJ6yxm{&]Vg)osXQ-VkX'l$_eAn'hwc[VPwCk3s6_htA*ca6InJNeiSTixf6(E9V3Qvocxm72$/=!RPb&5j1*R0R8)8Y+u8`Ek!wDjcGQ&L()W@caYJWrS(nliXxySwbvKR70Xp[v04f@k1fOF@6pWmZW6I#n9f2a.@.urAq]ztwY+CEmj&0OBAyYpwT@oFF78Et3iR)64I{p=`aQPKKOT+'twQc!#C=[kpt3N761utU/X^H/ePEc@CQW+H(mMA/Z%M=0r+*2:t=[zGh[(Z$kAAas/QBZk8OM3qDe]0hz6$/&VUHUH:Y`5`uT$vuS$K0DMpY$2Q%^Gf6O*GXUu=3#PO-zOKz$CC?1&#RT$gHC.4**@nk)55R+(a_&3J@U^7::Oz]0o+29MK5S4{|>\n",
         "objectsCount": 2,
         "objects": [
           {
@@ -433,7 +531,8 @@
             "mask": {
               "rows": 494,
               "cols": 358,
-              "encoding": "one_bit"
+              "encoding": "one_bit",
+              "payload": "!!!$bBj+3fP9]13(YT*RN2^DWy9QSWGsg`wb.O!UTF]498u&TM*jNl(N68ZG*O)O?sl2[R2s?2FG8'X:]X*+23L{lm.X^r1E*K5Bn@reawm-DXjQtKR4kP4.fr$g1E^'9n#KfIdIROSnQDnq7-WWKMi06Ij0./7Qo8DPcQ!9gmgpe#&/gku^`*Vyn4f3jA(z)Dk&Sa)]c(d%[mN@ifGI7)o9KkRd_wNVP8k?4wPlqILOEu-1CNV.IV%49c_u8pN!eZ61$4#4N:1dFWgEP@B4GHFeLK8Sk^aTP:!!"
             }
           },
           {
@@ -451,13 +550,34 @@
             "mask": {
               "rows": 379,
               "cols": 249,
-              "encoding": "one_bit"
+              "encoding": "one_bit",
+              "payload": "!!!%gBJ6yxm{&]Vg)osXQ-VkX'l$_eAn'hwc[VPwCk3s6_htA*ca6InJNeiSTixf6(E9V3Qvocxm72$/=!RPb&5j1*R0R8)8Y+u8`Ek!wDjcGQ&L()W@caYJWrS(nliXxySwbvKR70Xp[v04f@k1fOF@6pWmZW6I#n9f2a.@.urAq]ztwY+CEmj&0OBAyYpwT@oFF78Et3iR)64I{p=`aQPKKOT+'twQc!#C=[kpt3N761utU/X^H/ePEc@CQW+H(mMA/Z%M=0r+*2:t=[zGh[(Z$kAAas/QBZk8OM3qDe]0hz6$/&VUHUH:Y`5`uT$vuS$K0DMpY$2Q%^Gf6O*GXUu=3#PO-zOKz$CC?1&#RT$gHC.4**@nk)55R+(a_&3J@U^7::Oz]0o+29MK5S4{"
             }
           }
         ],
         "latencyMs": 777
       },
       "createdAt": "2026-10-27T02:58:11.342Z"
+    },
+    "371ef2eaad3066e58bd76e1de0ef34929e66688ffb326f897066fc56b3952c03": {
+      "key": "371ef2eaad3066e58bd76e1de0ef34929e66688ffb326f897066fc56b3952c03",
+      "endpoint": "/v1/images/generations",
+      "model": "muse-image-1.0",
+      "costUSD": 0.01,
+      "value": {
+        "model": "muse-image-1.0",
+        "endpoint": "/v1/images/generations",
+        "prompt": "Clean modern white residential HVAC service van clearly branded with LONE STAR AC & HEATING text on the side, parked in front of a modern Austin Texas home at golden hour, technician carrying tool bag, crisp commercial photography",
+        "imageUrl": "/generated/hero-8ac62160c596.webp",
+        "outputFormat": "webp",
+        "latencyMs": 12252,
+        "usage": {
+          "input_tokens": 4037,
+          "output_tokens": 1252,
+          "total_tokens": 5289
+        }
+      },
+      "createdAt": "2026-10-27T02:56:54.874Z"
     }
   },
   "ledger": [

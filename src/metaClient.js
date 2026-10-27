@@ -55,14 +55,16 @@ export function parseSamSegmentationText(rawText = '') {
       let maskRows = 0;
       let maskCols = 0;
       let encoding = 'lossless';
+      let maskPayload = '';
       for (const part of maskParts) {
         if (part.startsWith('data=')) {
           const rawData = part.slice(5);
-          const m = rawData.match(/^(\d+),(\d+),([~!])/);
+          const m = rawData.match(/^(\d+),(\d+),([~!])(.*)$/);
           if (m) {
             maskRows = Number(m[1]);
             maskCols = Number(m[2]);
             encoding = m[3] === '!' ? 'one_bit' : 'lossless';
+            maskPayload = m[4] || '';
           }
         }
       }
@@ -82,6 +84,7 @@ export function parseSamSegmentationText(rawText = '') {
           rows: maskRows,
           cols: maskCols,
           encoding,
+          payload: maskPayload,
         },
       });
     }
@@ -369,6 +372,14 @@ export class MetaPipelineClient {
         endpoint,
         qualification: preset.qualification,
         toolTrace,
+        replyAudioUrl: `/audio/reply-${businessId}-${lang}.mp3`,
+        checkoutOffer: {
+          offerId: `chk_${businessId}_${lang}`,
+          title: lang === 'es' ? `Reserva Prioritaria (${preset.qualification.preferred_slot}) + Bono Aplicado` : `Priority Slot Lock (${preset.qualification.preferred_slot}) + Waived Dispatch/Exam Fee`,
+          listPriceUSD: Number(preset.qualification.estimated_value_usd || 480) + 95,
+          bundlePriceUSD: Number(preset.qualification.estimated_value_usd || 480),
+          depositDueTodayUSD: 49,
+        },
         latencyMs: 0,
         usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
         cached: false,
@@ -472,11 +483,28 @@ export class MetaPipelineClient {
       const jsonStart = rawContent.indexOf("{");
       const jsonEnd = rawContent.lastIndexOf("}");
       const qualification = JSON.parse(jsonStart >= 0 && jsonEnd > jsonStart ? rawContent.slice(jsonStart, jsonEnd + 1) : rawContent);
+      if (!toolTrace.some((t) => t.tool === 'book_appointment')) {
+        const bArgs = {
+          business_id: business.id,
+          caller_name: qualification.caller_name || preset.qualification.caller_name || 'Verified Caller',
+          slot: qualification.preferred_slot || preset.qualification.preferred_slot || 'Today 02:00 PM',
+          service: qualification.service_requested || preset.qualification.service_requested || 'Priority Service',
+        };
+        toolTrace.push({ tool: 'book_appointment', args: bArgs, output: executeLocalToolCall('book_appointment', bArgs) });
+      }
       const result = {
         model,
         endpoint,
         qualification,
         toolTrace,
+        replyAudioUrl: `/audio/reply-${businessId}-${lang}.mp3`,
+        checkoutOffer: {
+          offerId: `chk_${businessId}_${lang}`,
+          title: lang === 'es' ? `Reserva Prioritaria (${qualification.preferred_slot}) + Bono Aplicado` : `Priority Slot Lock (${qualification.preferred_slot}) + Waived Dispatch/Exam Fee`,
+          listPriceUSD: Number(qualification.estimated_value_usd || 480) + 95,
+          bundlePriceUSD: Number(qualification.estimated_value_usd || 480),
+          depositDueTodayUSD: 49,
+        },
         latencyMs,
         usage: {
           prompt_tokens: promptTokens,
