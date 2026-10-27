@@ -1,7 +1,7 @@
 {
   "totalSpendUSD": 0.0691527,
   "totalLiveCalls": 13,
-  "totalCacheHits": 23,
+  "totalCacheHits": 27,
   "cache": {
     "ff6de8eda6e3018f188630fa475222ec84125f42a7c00a280690bb4f43cc8fb8": {
       "key": "ff6de8eda6e3018f188630fa475222ec84125f42a7c00a280690bb4f43cc8fb8",
@@ -476,7 +476,7 @@
               "rows": 108,
               "cols": 73,
               "encoding": "one_bit",
-              "payload": "!!!#-NU@Bgukd/xr$kKi37p=ave*H@L!9I/B1z'(e%%z`SZ?CBDG4A{JeuWKvewoiQS4-HU+:FWd*US(3)*]l)R1_rb*pk`8O&K!bQUg`28MIUkS8kY_-kf=VXtm"
+              "payload": "!!!!#-NU@Bgukd/xr$kKi37p=ave*H@L!9I/B1z'(e%%z`SZ?CBDG4A{JeuWKvewoiQS4-HU+:FWd*US(3)*]l)R1_rb*pk`8O&K!bQUg`28MIUkS8kY_-kf=VXtm"
             }
           },
           {
@@ -495,7 +495,7 @@
               "rows": 227,
               "cols": 138,
               "encoding": "one_bit",
-              "payload": "!!!$2BEoWKrU6ego?G]MFZZtk1+P#D-fWfUM^1UFTt-dby/&`t4]j!e`QG'*g!bcu+&&t=vs-1iNtvsG5*&63=4:i:R]/Fn/?Cv4^wIZz!uipvERS{ehwK*RYfu8Jjc_q(Ob!0^PQ!9C_9$TYCj@9%PZ#(k`PKwLa75X+v)9D0X[=+!d9X:D#NQG%Zk[5DW%K/F[73q[gqQt-pQm6CXJ!7(Gc69#v#F{Y?yw6mM*Lch4$"
+              "payload": "!!!!$2BEoWKrU6ego?G]MFZZtk1+P#D-fWfUM^1UFTt-dby/&`t4]j!e`QG'*g!bcu+&&t=vs-1iNtvsG5*&63=4:i:R]/Fn/?Cv4^wIZz!uipvERS{ehwK*RYfu8Jjc_q(Ob!0^PQ!9C_9$TYCj@9%PZ#(k`PKwLa75X+v)9D0X[=+!d9X:D#NQG%Zk[5DW%K/F[73q[gqQt-pQm6CXJ!7(Gc69#v#F{Y?yw6mM*Lch4$"
             }
           }
         ],
@@ -532,7 +532,7 @@
               "rows": 494,
               "cols": 358,
               "encoding": "one_bit",
-              "payload": "!!!$bBj+3fP9]13(YT*RN2^DWy9QSWGsg`wb.O!UTF]498u&TM*jNl(N68ZG*O)O?sl2[R2s?2FG8'X:]X*+23L{lm.X^r1E*K5Bn@reawm-DXjQtKR4kP4.fr$g1E^'9n#KfIdIROSnQDnq7-WWKMi06Ij0./7Qo8DPcQ!9gmgpe#&/gku^`*Vyn4f3jA(z)Dk&Sa)]c(d%[mN@ifGI7)o9KkRd_wNVP8k?4wPlqILOEu-1CNV.IV%49c_u8pN!eZ61$4#4N:1dFWgEP@B4GHFeLK8Sk^aTP:!!"
+              "payload": "!!!!$bBj+3fP9]13(YT*RN2^DWy9QSWGsg`wb.O!UTF]498u&TM*jNl(N68ZG*O)O?sl2[R2s?2FG8'X:]X*+23L{lm.X^r1E*K5Bn@reawm-DXjQtKR4kP4.fr$g1E^'9n#KfIdIROSnQDnq7-WWKMi06Ij0./7Qo8DPcQ!9gmgpe#&/gku^`*Vyn4f3jA(z)Dk&Sa)]c(d%[mN@ifGI7)o9KkRd_wNVP8k?4wPlqILOEu-1CNV.IV%49c_u8pN!eZ61$4#4N:1dFWgEP@B4GHFeLK8Sk^aTP:!!"
             }
           },
           {
@@ -551,7 +551,7 @@
               "rows": 379,
               "cols": 249,
               "encoding": "one_bit",
-              "payload": "!!!%gBJ6yxm{&]Vg)osXQ-VkX'l$_eAn'hwc[VPwCk3s6_htA*ca6InJNeiSTixf6(E9V3Qvocxm72$/=!RPb&5j1*R0R8)8Y+u8`Ek!wDjcGQ&L()W@caYJWrS(nliXxySwbvKR70Xp[v04f@k1fOF@6pWmZW6I#n9f2a.@.urAq]ztwY+CEmj&0OBAyYpwT@oFF78Et3iR)64I{p=`aQPKKOT+'twQc!#C=[kpt3N761utU/X^H/ePEc@CQW+H(mMA/Z%M=0r+*2:t=[zGh[(Z$kAAas/QBZk8OM3qDe]0hz6$/&VUHUH:Y`5`uT$vuS$K0DMpY$2Q%^Gf6O*GXUu=3#PO-zOKz$CC?1&#RT$gHC.4**@nk)55R+(a_&3J@U^7::Oz]0o+29MK5S4{"
+              "payload": "!!!!%gBJ6yxm{&]Vg)osXQ-VkX'l$_eAn'hwc[VPwCk3s6_htA*ca6InJNeiSTixf6(E9V3Qvocxm72$/=!RPb&5j1*R0R8)8Y+u8`Ek!wDjcGQ&L()W@caYJWrS(nliXxySwbvKR70Xp[v04f@k1fOF@6pWmZW6I#n9f2a.@.urAq]ztwY+CEmj&0OBAyYpwT@oFF78Et3iR)64I{p=`aQPKKOT+'twQc!#C=[kpt3N761utU/X^H/ePEc@CQW+H(mMA/Z%M=0r+*2:t=[zGh[(Z$kAAas/QBZk8OM3qDe]0hz6$/&VUHUH:Y`5`uT$vuS$K0DMpY$2Q%^Gf6O*GXUu=3#PO-zOKz$CC?1&#RT$gHC.4**@nk)55R+(a_&3J@U^7::Oz]0o+29MK5S4{"
             }
           }
         ],
@@ -868,6 +868,38 @@
       "costUSD": 0,
       "cached": true,
       "createdAt": "2026-10-27T18:45:58.567Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T18:48:53.865Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T18:48:53.872Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/responses",
+      "model": "sam-3.1",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T18:48:53.878Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/images/generations",
+      "model": "muse-image-1.0",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T18:48:53.885Z"
     }
   ]
 }

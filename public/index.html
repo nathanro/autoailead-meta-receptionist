@@ -829,7 +829,7 @@
 
 
     // Official @meta-sam/parser one_bit RangeDecoder + 12-neighbor contextAt implementation
-    const SAM_EXCLUDED_CHARS = new Set(['"', '\\', ',', ';', '<', '>', '|']);
+    const SAM_EXCLUDED_CHARS = new Set([34, 44, 59, 60, 62, 92, 124].map((c) => String.fromCharCode(c)));
     const SAM_ALPHABET = (() => {
       let val = '';
       for (let code = 0x21; code <= 0x7e; code += 1) {
