@@ -9,6 +9,18 @@ import { DEMO_BUSINESSES } from './fallbackData.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 
+const MIME_TYPES = {
+  '.html': 'text/html; charset=utf-8',
+  '.js': 'application/javascript; charset=utf-8',
+  '.css': 'text/css; charset=utf-8',
+  '.json': 'application/json; charset=utf-8',
+  '.wav': 'audio/wav',
+  '.webp': 'image/webp',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+};
+
 export function createAppServer(options = {}) {
   const guardrails = new SpendGuardrails(options);
   const client = new MetaPipelineClient(guardrails);
@@ -29,7 +41,7 @@ export function createAppServer(options = {}) {
         let raw = '';
         req.on('data', (chunk) => {
           raw += chunk;
-          if (raw.length > 5_000_000) req.destroy();
+          if (raw.length > 8_000_000) req.destroy();
         });
         req.on('end', () => {
           try {
@@ -56,6 +68,9 @@ export function createAppServer(options = {}) {
           rating: b.rating,
           reviewCount: b.reviewCount,
           phone: b.phone,
+          samplePhotoUrl: b.samplePhotoUrl,
+          samTargetConcept: b.samTargetConcept,
+          heroPrompt: b.heroPrompt,
         })),
       });
     }
@@ -65,9 +80,10 @@ export function createAppServer(options = {}) {
       const businessId = body.businessId || 'smile-dental-miami';
       const lang = body.lang === 'es' ? 'es' : 'en';
       const sessionId = body.sessionId || 'demo-session';
+      const generateHero = body.generateHero !== false; // default true (hits cache at $0.00)
       const business = DEMO_BUSINESSES[businessId] || DEMO_BUSINESSES['smile-dental-miami'];
 
-      // Step 1: Muse Voice Transcribe (ASR)
+      // Step 1: Muse Voice Transcribe 1.0 (ASR)
       const asr = await client.transcribeAudio({
         wavBuffer: body.audioBase64 ? Buffer.from(body.audioBase64, 'base64') : null,
         businessId,
@@ -91,8 +107,8 @@ export function createAppServer(options = {}) {
         sessionId,
       });
 
-      // Step 4: Muse Image 1.0 (Optional Hero Visual Generation)
-      const hero = body.generateHero
+      // Step 4: Muse Image 1.0 (Hero Visual Generation)
+      const hero = generateHero
         ? await client.generateHeroVisual({
             prompt: business.heroPrompt,
             sessionId,
@@ -105,7 +121,11 @@ export function createAppServer(options = {}) {
           name: business.name,
           niche: business.niche,
           city: business.city,
+          rating: business.rating,
+          reviewCount: business.reviewCount,
           phone: business.phone,
+          samplePhotoUrl: business.samplePhotoUrl,
+          samTargetConcept: business.samTargetConcept,
         },
         steps: {
           asr,
@@ -117,12 +137,17 @@ export function createAppServer(options = {}) {
       });
     }
 
-    // Serve static UI
-    if (req.method === 'GET' && (url.pathname === '/' || url.pathname === '/index.html')) {
-      const htmlPath = path.join(PUBLIC_DIR, 'index.html');
-      if (fs.existsSync(htmlPath)) {
-        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-        return res.end(fs.readFileSync(htmlPath, 'utf8'));
+    // Serve static files from PUBLIC_DIR (/index.html, /audio/*, /photos/*, /generated/*)
+    if (req.method === 'GET') {
+      const safeRelPath = path
+        .normalize(url.pathname === '/' ? '/index.html' : url.pathname)
+        .replace(/^(\.\.(\/|\\|$))+/, '');
+      const fullPath = path.join(PUBLIC_DIR, safeRelPath);
+      if (fullPath.startsWith(PUBLIC_DIR) && fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
+        const ext = path.extname(fullPath).toLowerCase();
+        const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+        res.writeHead(200, { 'Content-Type': contentType });
+        return fs.createReadStream(fullPath).pipe(res);
       }
     }
 

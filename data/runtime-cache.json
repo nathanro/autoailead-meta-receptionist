@@ -1,0 +1,721 @@
+{
+  "totalSpendUSD": 0.0691527,
+  "totalLiveCalls": 13,
+  "totalCacheHits": 19,
+  "cache": {
+    "ff6de8eda6e3018f188630fa475222ec84125f42a7c00a280690bb4f43cc8fb8": {
+      "key": "ff6de8eda6e3018f188630fa475222ec84125f42a7c00a280690bb4f43cc8fb8",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0.00045,
+      "value": {
+        "model": "muse-voice-transcribe-1.0",
+        "endpoint": "/v1/asr/transcribe",
+        "transcript": "Hi, I cracked my front dental crown eating lunch in Brickell and I am flying out Friday morning. Do you have any emergency slot tomorrow at 9 30?",
+        "audioDurationMs": 9440,
+        "latencyMs": 2833,
+        "audioUrl": "/audio/caller-en.wav",
+        "turns": [
+          {
+            "turnId": 0,
+            "startMs": 0,
+            "endMs": 8460,
+            "transcript": "Hi, I cracked my front dental crown eating lunch in Brickell and I am flying out Friday morning. Do you have any emergency slot tomorrow at 9 30?"
+          }
+        ]
+      },
+      "createdAt": "2026-10-27T02:55:01.661Z"
+    },
+    "f989ecf7635b68096a5d6495d369f33d84bbba91a5264fd1b6ab93c8032a9d9e": {
+      "key": "f989ecf7635b68096a5d6495d369f33d84bbba91a5264fd1b6ab93c8032a9d9e",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0.00991225,
+      "value": {
+        "model": "muse-spark-1.3",
+        "endpoint": "/v1/chat/completions",
+        "qualification": {
+          "caller_name": "Not provided",
+          "detected_language": "en",
+          "estimated_value_usd": 1200,
+          "owner_whatsapp_summary": "🚨 HIGH urgency: Cracked front dental crown eating lunch in Brickell, flying out Friday morning. Requested Tomorrow 09:30 AM - CONFIRMED AVAILABLE (Today 02:00 PM, 04:30 PM also open). Needs emergency crown repair before flight. Language: EN.",
+          "preferred_slot": "Tomorrow 09:30 AM",
+          "receptionist_reply": "Hi! I'm so sorry you cracked your front crown — I understand how urgent this is with your flight Friday morning. Good news: we do have an emergency slot available tomorrow at 9:30 AM at Smile Dental Clinic Brickell. Can I reserve it for you right now so we can fix it in time?",
+          "service_requested": "Emergency repair of cracked front dental crown",
+          "urgency": "high"
+        },
+        "toolTrace": [
+          {
+            "tool": "check_calendar_slots",
+            "args": {
+              "business_id": "smile-dental-clinic-brickell",
+              "urgency": "high"
+            },
+            "output": {
+              "business_id": "smile-dental-clinic-brickell",
+              "available_slots": [
+                "Today 02:00 PM",
+                "Today 04:30 PM",
+                "Tomorrow 09:30 AM"
+              ]
+            }
+          }
+        ],
+        "latencyMs": 7470,
+        "usage": {
+          "prompt_tokens": 1157,
+          "completion_tokens": 1992,
+          "cached_tokens": 0,
+          "total_tokens": 3149
+        }
+      },
+      "createdAt": "2026-10-27T02:55:09.166Z"
+    },
+    "fadc3c117c4e80e7cb30bccf0f9a7c9a7fb2dd77bf188524206f5d241c99de08": {
+      "key": "fadc3c117c4e80e7cb30bccf0f9a7c9a7fb2dd77bf188524206f5d241c99de08",
+      "endpoint": "/v1/images/generations",
+      "model": "muse-image-1.0",
+      "costUSD": 0.01,
+      "value": {
+        "model": "muse-image-1.0",
+        "endpoint": "/v1/images/generations",
+        "prompt": "Modern bright dental clinic reception in Brickell Miami, warm sunlight, minimalist luxury interior, photorealistic",
+        "imageUrl": "/generated/hero-fadc3c117c4e.webp",
+        "outputFormat": "webp",
+        "latencyMs": 9443,
+        "usage": {
+          "input_tokens": 4014,
+          "output_tokens": 1139,
+          "total_tokens": 5153
+        }
+      },
+      "createdAt": "2026-10-27T02:55:19.290Z"
+    },
+    "52ab00bb30b223240698c0f1f27d998324142ce13f3caf99b7aefb78b95ba324": {
+      "key": "52ab00bb30b223240698c0f1f27d998324142ce13f3caf99b7aefb78b95ba324",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0.0005,
+      "value": {
+        "model": "muse-voice-transcribe-1.0",
+        "endpoint": "/v1/asr/transcribe",
+        "transcript": "Hola buenas tardes, tengo un dolor fuerte en una muela desde ayer y busco dentista que hable español aquí en Miami. ¿Tienen espacio hoy a las cuatro y media?",
+        "audioDurationMs": 10160,
+        "latencyMs": 2201,
+        "audioUrl": "/audio/caller-es.wav",
+        "turns": [
+          {
+            "turnId": 0,
+            "startMs": 0,
+            "endMs": 9100,
+            "transcript": "Hola buenas tardes, tengo un dolor fuerte en una muela desde ayer y busco dentista que hable español aquí en Miami. ¿Tienen espacio hoy a las cuatro y media?"
+          }
+        ]
+      },
+      "createdAt": "2026-10-27T02:55:21.504Z"
+    },
+    "90aed89e11ab52747957b8ee5df14ddbde9c7ab64ca159939e117135770ef7e9": {
+      "key": "90aed89e11ab52747957b8ee5df14ddbde9c7ab64ca159939e117135770ef7e9",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0.00921925,
+      "value": {
+        "model": "muse-spark-1.3",
+        "endpoint": "/v1/chat/completions",
+        "qualification": {
+          "caller_name": "No proporcionado",
+          "detected_language": "es",
+          "estimated_value_usd": 250,
+          "owner_whatsapp_summary": "Lead urgente: Dolor fuerte en muela desde ayer. Habla español, busca dentista en Miami. Solicita HOY 4:30 PM - slot DISPONIBLE confirmado (Today 04:30 PM). Requiere seguimiento inmediato para reservar.",
+          "preferred_slot": "Today 04:30 PM",
+          "receptionist_reply": "¡Hola, buenas tardes! Lamento mucho ese dolor fuerte en su muela. Claro que sí, hablamos español y somos especialistas en emergencias dentales aquí en Brickell, Miami. Sí tenemos espacio disponible hoy a las 4:30 PM para atenderle. ¿Me confirma su nombre completo para reservarle ese espacio de hoy a las 4:30 PM?",
+          "service_requested": "Emergencia dental - dolor fuerte en muela",
+          "urgency": "high"
+        },
+        "toolTrace": [
+          {
+            "tool": "check_calendar_slots",
+            "args": {
+              "business_id": "smile-dental-brickell",
+              "urgency": "high"
+            },
+            "output": {
+              "business_id": "smile-dental-brickell",
+              "available_slots": [
+                "Today 02:00 PM",
+                "Today 04:30 PM",
+                "Tomorrow 09:30 AM"
+              ]
+            }
+          }
+        ],
+        "latencyMs": 8573,
+        "usage": {
+          "prompt_tokens": 1167,
+          "completion_tokens": 1826,
+          "cached_tokens": 0,
+          "total_tokens": 2993
+        }
+      },
+      "createdAt": "2026-10-27T02:55:30.084Z"
+    },
+    "00e65064ee51c5ac1b2d67e0379b91bbfeb33e8b38baa906d1d4cf8c2988c007": {
+      "key": "00e65064ee51c5ac1b2d67e0379b91bbfeb33e8b38baa906d1d4cf8c2988c007",
+      "endpoint": "/v1/responses",
+      "model": "sam-3.1",
+      "costUSD": 0.0025,
+      "value": {
+        "model": "sam-3.1",
+        "endpoint": "/v1/responses",
+        "concept": "dental chair",
+        "imageUrl": "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=900&q=80",
+        "rawStreamPreview": "<0f>0<|box;x1=386;y1=339;x2=522;y2=565;w=900;h=602|><|mask;x=0;y=0;data=227,137,!!!!$bBEoB/h]wGuE1h{.j`tWhbh(])?es5)2Yl%xnuu29-THZLKgTWRldEz_o(6n!hA=f=5GyL7`^^I[i%2[T%w*l/Huhx*M1@:1s2Y'5rM9mki_66OG-V/L1m{A'5gP9CnLDTaxR'F1JREFZjov&K)VGYZMB+n9SjUleCZ&p2R#CGDS3$6...",
+        "objectsCount": 1,
+        "objects": [
+          {
+            "frameIndex": 0,
+            "objectId": 0,
+            "box": {
+              "x1": 386,
+              "y1": 339,
+              "x2": 522,
+              "y2": 565,
+              "width": 900,
+              "height": 602,
+              "confidence": null
+            },
+            "mask": {
+              "rows": 227,
+              "cols": 137,
+              "encoding": "one_bit"
+            }
+          }
+        ],
+        "latencyMs": 656
+      },
+      "createdAt": "2026-10-27T02:55:41.897Z"
+    },
+    "e459b84242a91510abd870dc0ea2f12fc108b5e5c21627fc21420b8946a64b99": {
+      "key": "e459b84242a91510abd870dc0ea2f12fc108b5e5c21627fc21420b8946a64b99",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0.00055,
+      "value": {
+        "model": "muse-voice-transcribe-1.0",
+        "endpoint": "/v1/asr/transcribe",
+        "transcript": "Hey, our upstairs AC unit stopped cooling and it is 94 degrees inside with two kids. Can a technician come out to South Congress this afternoon at 2 PM?",
+        "audioDurationMs": 11280,
+        "latencyMs": 2841,
+        "audioUrl": null,
+        "turns": [
+          {
+            "turnId": 0,
+            "startMs": 0,
+            "endMs": 10220,
+            "transcript": "Hey, our upstairs AC unit stopped cooling and it is 94 degrees inside with two kids. Can a technician come out to South Congress this afternoon at 2 PM?"
+          }
+        ]
+      },
+      "createdAt": "2026-10-27T02:56:21.511Z"
+    },
+    "1e8d763e56aee3565a56fa72f8f46cf6e09553298e5a242d3bb697157a6031e1": {
+      "key": "1e8d763e56aee3565a56fa72f8f46cf6e09553298e5a242d3bb697157a6031e1",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0.01009875,
+      "value": {
+        "model": "muse-spark-1.3",
+        "endpoint": "/v1/chat/completions",
+        "qualification": {
+          "caller_name": "Unknown",
+          "detected_language": "en",
+          "estimated_value_usd": 350,
+          "owner_whatsapp_summary": "🔥 HIGH URGENCY - Upstairs AC not cooling, 94F inside with 2 kids in South Congress. Requested Today 2:00 PM - AVAILABLE and reserved. Needs tech ASAP.",
+          "preferred_slot": "Today 02:00 PM",
+          "receptionist_reply": "I'm so sorry you're dealing with this heat with two kids at home — I know how stressful that is. I've reserved our next available technician for you in South Congress TODAY at 2:00 PM for your upstairs AC that stopped cooling. Please keep the kids hydrated and in the coolest room downstairs if possible until we arrive. We'll see you at 2 PM!",
+          "service_requested": "AC Repair - upstairs unit stopped cooling",
+          "urgency": "high"
+        },
+        "toolTrace": [
+          {
+            "tool": "check_calendar_slots",
+            "args": {
+              "business_id": "lone-star-ac-heating",
+              "urgency": "high"
+            },
+            "output": {
+              "business_id": "lone-star-ac-heating",
+              "available_slots": [
+                "Today 02:00 PM",
+                "Today 04:30 PM",
+                "Tomorrow 09:30 AM"
+              ]
+            }
+          }
+        ],
+        "latencyMs": 8207,
+        "usage": {
+          "prompt_tokens": 1160,
+          "completion_tokens": 2035,
+          "cached_tokens": 0,
+          "total_tokens": 3195
+        }
+      },
+      "createdAt": "2026-10-27T02:56:29.736Z"
+    },
+    "7ee14f7a327cbac6ee25f12e6741d89e3ec7237edda161b0bee5d62497e567e3": {
+      "key": "7ee14f7a327cbac6ee25f12e6741d89e3ec7237edda161b0bee5d62497e567e3",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0.0005,
+      "value": {
+        "model": "muse-voice-transcribe-1.0",
+        "endpoint": "/v1/asr/transcribe",
+        "transcript": "Hola, tenemos un restaurante pequeño en Austin y el aire central hace hace mucho ruido. ¿Me pueden dar cita mañana a las ocho y media para revisar el equipo?",
+        "audioDurationMs": 10400,
+        "latencyMs": 2268,
+        "audioUrl": null,
+        "turns": [
+          {
+            "turnId": 0,
+            "startMs": 0,
+            "endMs": 9420,
+            "transcript": "Hola, tenemos un restaurante pequeño en Austin y el aire central hace hace mucho ruido. ¿Me pueden dar cita mañana a las ocho y media para revisar el equipo?"
+          }
+        ]
+      },
+      "createdAt": "2026-10-27T02:56:32.016Z"
+    },
+    "047665be4a13a1ce7858e085e63a7bdb017c8f23bbdf226bf7fac0566e85e9f9": {
+      "key": "047665be4a13a1ce7858e085e63a7bdb017c8f23bbdf226bf7fac0566e85e9f9",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0.01042245,
+      "value": {
+        "model": "muse-spark-1.3",
+        "endpoint": "/v1/chat/completions",
+        "qualification": {
+          "caller_name": "No proporcionado",
+          "detected_language": "es",
+          "estimated_value_usd": 249,
+          "owner_whatsapp_summary": "Restaurante pequeño en Austin: aire central hace mucho ruido. Cliente pide revisión mañana a las 8:30 AM. Slot disponible confirmado: Tomorrow 08:30 AM. Idioma español. Urgencia media - equipo funciona pero ruidoso en negocio.",
+          "preferred_slot": "Tomorrow 08:30 AM",
+          "receptionist_reply": "¡Hola! Gracias por llamar a Lone Star AC & Heating. Con gusto le agendamos la revisión de su aire central para mañana a las 8:30 AM en su restaurante en Austin. El slot está disponible y un técnico revisará el ruido del equipo. ¿Me puede confirmar su nombre y la dirección del restaurante para completar la reserva?",
+          "service_requested": "Revisión de aire central que hace mucho ruido en restaurante pequeño",
+          "urgency": "medium"
+        },
+        "toolTrace": [
+          {
+            "tool": "check_calendar_slots",
+            "args": {
+              "business_id": "lone-star-ac-heating",
+              "urgency": "medium"
+            },
+            "output": {
+              "business_id": "lone-star-ac-heating",
+              "available_slots": [
+                "Tomorrow 08:30 AM",
+                "Tomorrow 11:00 AM",
+                "Thursday 03:00 PM"
+              ]
+            }
+          }
+        ],
+        "latencyMs": 11120,
+        "usage": {
+          "prompt_tokens": 1158,
+          "completion_tokens": 2141,
+          "cached_tokens": 113,
+          "total_tokens": 3299
+        }
+      },
+      "createdAt": "2026-10-27T02:56:43.145Z"
+    },
+    "8ac62160c59631bf53faa27a6c691ee74bcbb27b327d12880d0597e6e28cc796": {
+      "key": "8ac62160c59631bf53faa27a6c691ee74bcbb27b327d12880d0597e6e28cc796",
+      "endpoint": "/v1/images/generations",
+      "model": "muse-image-1.0",
+      "costUSD": 0.01,
+      "value": {
+        "model": "muse-image-1.0",
+        "endpoint": "/v1/images/generations",
+        "prompt": "Clean modern residential HVAC service van parked in front of an Austin Texas home at golden hour, crisp commercial photography",
+        "imageUrl": "/generated/hero-8ac62160c596.webp",
+        "outputFormat": "webp",
+        "latencyMs": 10691,
+        "usage": {
+          "input_tokens": 4015,
+          "output_tokens": 963,
+          "total_tokens": 4978
+        }
+      },
+      "createdAt": "2026-10-27T02:56:54.874Z"
+    },
+    "2197632f17a027612b7075ffe7e13dfa2c47688941a2c5d81340c215d5ba4309": {
+      "key": "2197632f17a027612b7075ffe7e13dfa2c47688941a2c5d81340c215d5ba4309",
+      "endpoint": "/v1/responses",
+      "model": "sam-3.1",
+      "costUSD": 0.0025,
+      "value": {
+        "model": "sam-3.1",
+        "endpoint": "/v1/responses",
+        "concept": "dental chair",
+        "imageUrl": "/photos/smile-dental-miami.jpg",
+        "rawStreamPreview": "<0f>0<|box;x1=624;y1=356;x2=696;y2=463;w=900;h=602|><|mask;x=0;y=0;data=108,73,!!!!#+NU@Bgukd/xr$kKi37p=ave*H@L!9I/B1z'(e%%z`SZ?CBDG4A{JeuWKvewoiQS4-HU+:FWd*US(3)*]l)R1_rb*pk`8O&K!bQUg`28MIUkS8kY_-kh'D3X|>,1<|box;x1=385;y1=339;x2=522;y2=565;w=900;h=602|><|mask...",
+        "objectsCount": 2,
+        "objects": [
+          {
+            "frameIndex": 0,
+            "objectId": 0,
+            "box": {
+              "x1": 624,
+              "y1": 356,
+              "x2": 696,
+              "y2": 463,
+              "width": 900,
+              "height": 602,
+              "confidence": null
+            },
+            "mask": {
+              "rows": 108,
+              "cols": 73,
+              "encoding": "one_bit"
+            }
+          },
+          {
+            "frameIndex": 0,
+            "objectId": 1,
+            "box": {
+              "x1": 385,
+              "y1": 339,
+              "x2": 522,
+              "y2": 565,
+              "width": 900,
+              "height": 602,
+              "confidence": null
+            },
+            "mask": {
+              "rows": 227,
+              "cols": 138,
+              "encoding": "one_bit"
+            }
+          }
+        ],
+        "latencyMs": 721
+      },
+      "createdAt": "2026-10-27T02:58:10.553Z"
+    },
+    "749c242138458d4093826d5cbdb3fd2efed79f0505ff5c6327380a4f31233c6e": {
+      "key": "749c242138458d4093826d5cbdb3fd2efed79f0505ff5c6327380a4f31233c6e",
+      "endpoint": "/v1/responses",
+      "model": "sam-3.1",
+      "costUSD": 0.0025,
+      "value": {
+        "model": "sam-3.1",
+        "endpoint": "/v1/responses",
+        "concept": "technician",
+        "imageUrl": "/photos/lone-star-hvac-austin.jpg",
+        "rawStreamPreview": "<0f>0<|box;x1=542;y1=106;x2=899;y2=599;w=900;h=600|><|mask;x=0;y=0;data=494,358,!!!!$cBj+3fP9]13(YT*RN2^DWy9QSWGsg`wb.O!UTF]498u&TM*jNl(N68ZG*O)O?sl2[R2s?2FG8'X:]X*+2-HCV.R3&RE]={c`A]]*YOiElaA*P%ndsrwaPL-2!PQ/jTAsTfR$%n+@1!+D[oj)tpJq6'x1IO`15jo+5A%ZkXy(D&bMa93...",
+        "objectsCount": 2,
+        "objects": [
+          {
+            "frameIndex": 0,
+            "objectId": 0,
+            "box": {
+              "x1": 542,
+              "y1": 106,
+              "x2": 899,
+              "y2": 599,
+              "width": 900,
+              "height": 600,
+              "confidence": null
+            },
+            "mask": {
+              "rows": 494,
+              "cols": 358,
+              "encoding": "one_bit"
+            }
+          },
+          {
+            "frameIndex": 0,
+            "objectId": 1,
+            "box": {
+              "x1": 165,
+              "y1": 221,
+              "x2": 413,
+              "y2": 599,
+              "width": 900,
+              "height": 600,
+              "confidence": null
+            },
+            "mask": {
+              "rows": 379,
+              "cols": 249,
+              "encoding": "one_bit"
+            }
+          }
+        ],
+        "latencyMs": 777
+      },
+      "createdAt": "2026-10-27T02:58:11.342Z"
+    }
+  },
+  "ledger": [
+    {
+      "sessionId": "live-verification-oct26",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0.00045,
+      "cached": false,
+      "createdAt": "2026-10-27T02:55:01.661Z"
+    },
+    {
+      "sessionId": "live-verification-oct26",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0.00991225,
+      "cached": false,
+      "createdAt": "2026-10-27T02:55:09.166Z"
+    },
+    {
+      "sessionId": "live-verification-oct26",
+      "endpoint": "/v1/images/generations",
+      "model": "muse-image-1.0",
+      "costUSD": 0.01,
+      "cached": false,
+      "createdAt": "2026-10-27T02:55:19.290Z"
+    },
+    {
+      "sessionId": "live-verification-oct26",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0.0005,
+      "cached": false,
+      "createdAt": "2026-10-27T02:55:21.504Z"
+    },
+    {
+      "sessionId": "live-verification-oct26",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0.00921925,
+      "cached": false,
+      "createdAt": "2026-10-27T02:55:30.084Z"
+    },
+    {
+      "sessionId": "live-verification-oct26",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T02:55:30.096Z"
+    },
+    {
+      "sessionId": "live-verification-oct26",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T02:55:30.101Z"
+    },
+    {
+      "sessionId": "live-verification-oct26",
+      "endpoint": "/v1/images/generations",
+      "model": "muse-image-1.0",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T02:55:30.595Z"
+    },
+    {
+      "sessionId": "sam-check",
+      "endpoint": "/v1/responses",
+      "model": "sam-3.1",
+      "costUSD": 0.0025,
+      "cached": false,
+      "createdAt": "2026-10-27T02:55:41.897Z"
+    },
+    {
+      "sessionId": "live-verification-hvac",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0.00055,
+      "cached": false,
+      "createdAt": "2026-10-27T02:56:21.511Z"
+    },
+    {
+      "sessionId": "live-verification-hvac",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0.01009875,
+      "cached": false,
+      "createdAt": "2026-10-27T02:56:29.736Z"
+    },
+    {
+      "sessionId": "live-verification-hvac",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0.0005,
+      "cached": false,
+      "createdAt": "2026-10-27T02:56:32.016Z"
+    },
+    {
+      "sessionId": "live-verification-hvac",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0.01042245,
+      "cached": false,
+      "createdAt": "2026-10-27T02:56:43.145Z"
+    },
+    {
+      "sessionId": "live-verification-hvac",
+      "endpoint": "/v1/images/generations",
+      "model": "muse-image-1.0",
+      "costUSD": 0.01,
+      "cached": false,
+      "createdAt": "2026-10-27T02:56:54.874Z"
+    },
+    {
+      "sessionId": "sam-local-verify",
+      "endpoint": "/v1/responses",
+      "model": "sam-3.1",
+      "costUSD": 0.0025,
+      "cached": false,
+      "createdAt": "2026-10-27T02:58:10.553Z"
+    },
+    {
+      "sessionId": "sam-local-verify",
+      "endpoint": "/v1/responses",
+      "model": "sam-3.1",
+      "costUSD": 0.0025,
+      "cached": false,
+      "createdAt": "2026-10-27T02:58:11.342Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.031Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.038Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/responses",
+      "model": "sam-3.1",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.043Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/images/generations",
+      "model": "muse-image-1.0",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.049Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.065Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.069Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/responses",
+      "model": "sam-3.1",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.075Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/images/generations",
+      "model": "muse-image-1.0",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.080Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.090Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.095Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/responses",
+      "model": "sam-3.1",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.099Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/images/generations",
+      "model": "muse-image-1.0",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.105Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.113Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.117Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/responses",
+      "model": "sam-3.1",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.123Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/images/generations",
+      "model": "muse-image-1.0",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T03:00:53.128Z"
+    }
+  ]
+}

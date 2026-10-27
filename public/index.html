@@ -3,81 +3,201 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AutoAI Lead — AI Receptionist & Visual Demo Engine (Meta Model API)</title>
+  <title>AutoAI Lead — 24/7 Bilingual AI Receptionist & Visual Demo Engine (Meta Model API)</title>
   <style>
     :root {
-      --bg: #0b0f19;
-      --card: #131a2a;
-      --border: #23304d;
-      --text: #f1f5f9;
+      --bg: #070b14;
+      --surface: #0f1626;
+      --surface-2: #162038;
+      --border: #233253;
+      --text: #f8fafc;
       --muted: #94a3b8;
       --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.2);
       --green: #10b981;
+      --amber: #f59e0b;
+      --purple: #8b5cf6;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at top right, #111c38 0%, var(--bg) 55%);
       color: var(--text);
       line-height: 1.5;
-      padding: 24px;
+      padding: 24px 18px 60px;
+      min-height: 100vh;
     }
-    .container { max-width: 1120px; margin: 0 auto; }
+    .container { max-width: 1260px; margin: 0 auto; }
     header {
-      display: flex; justify-content: space-between; align-items: center;
-      flex-wrap: wrap; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: flex-start;
+      flex-wrap: wrap; gap: 18px; padding-bottom: 20px; border-bottom: 1px solid var(--border);
     }
-    .badge {
-      background: rgba(59, 130, 246, 0.15); border: 1px solid var(--accent);
-      color: #93c5fd; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    .brand-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent-glow); border: 1px solid var(--accent);
+      color: #93c5fd; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600;
     }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-    @media (max-width: 820px) { .grid { grid-template-columns: 1fr; } }
-    .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; padding: 20px;
+    h1 { font-size: clamp(22px, 3vw, 30px); font-weight: 700; margin-top: 8px; letter-spacing: -0.02em; }
+    .subtitle { color: var(--muted); font-size: 14px; margin-top: 4px; max-width: 68ch; }
+    .telemetry-strip {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px; margin-top: 18px;
     }
-    h2 { font-size: 18px; margin-bottom: 12px; }
-    label { display: block; font-size: 13px; color: var(--muted); margin-top: 12px; margin-bottom: 4px; }
-    select, textarea, button {
-      width: 100%; padding: 10px 12px; border-radius: 8px;
-      border: 1px solid var(--border); background: #0f1523; color: var(--text); font-size: 14px;
+    .stat-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; padding: 12px 14px;
     }
-    button.primary {
+    .stat-label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+    .stat-value { font-size: 20px; font-weight: 700; margin-top: 2px; color: var(--text); }
+    .stat-value.green { color: var(--green); }
+    .stat-sub { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+
+    .preset-bar {
+      display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; align-items: center;
+    }
+    .preset-btn {
+      background: var(--surface); border: 1px solid var(--border); color: var(--text);
+      padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .preset-btn:hover, .preset-btn.active {
       background: var(--accent); border-color: var(--accent); color: #fff;
-      font-weight: 600; cursor: pointer; margin-top: 16px;
     }
+
+    .layout {
+      display: grid; grid-template-columns: 360px 1fr; gap: 20px; margin-top: 20px;
+    }
+    @media (max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 18px;
+    }
+    .card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 8px; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .card-title { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+    .model-tag {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11.5px; background: var(--surface-2); border: 1px solid var(--border);
+      color: #bfdbfe; padding: 2px 8px; border-radius: 6px;
+    }
+    .status-pill {
+      font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+    }
+    .status-pill.cached { background: rgba(16, 185, 129, 0.16); color: #34d399; border: 1px solid #059669; }
+    .status-pill.live { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid #2563eb; }
+
+    label { display: block; font-size: 12.5px; color: var(--muted); margin-top: 12px; margin-bottom: 5px; font-weight: 500; }
+    select, textarea {
+      width: 100%; padding: 10px 12px; border-radius: 8px;
+      border: 1px solid var(--border); background: #090e1a; color: var(--text); font-size: 13.5px;
+    }
+    button.run-btn {
+      width: 100%; padding: 12px 16px; border-radius: 8px; border: 0;
+      background: linear-gradient(135deg, #2563eb, #3b82f6); color: #fff;
+      font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 16px;
+    }
+    button.run-btn:disabled { opacity: 0.6; cursor: wait; }
+
+    .steps-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    @media (max-width: 760px) { .steps-grid { grid-template-columns: 1fr; } }
+
+    .quote-box {
+      background: #090e1a; border-left: 3px solid var(--accent);
+      padding: 10px 12px; border-radius: 6px; font-size: 13.5px; margin-top: 8px;
+    }
+    .whatsapp-box {
+      background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #d1fae5; padding: 10px 12px; border-radius: 8px; font-size: 13px; margin-top: 10px;
+    }
+    .kv-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px;
+    }
+    .kv-item {
+      background: #090e1a; border: 1px solid var(--border); border-radius: 6px; padding: 7px 10px;
+    }
+    .kv-item span { display: block; font-size: 11px; color: var(--muted); }
+    .kv-item strong { font-size: 13px; color: var(--text); }
+
+    .media-frame {
+      position: relative; width: 100%; border-radius: 8px; overflow: hidden;
+      border: 1px solid var(--border); background: #050811; margin-top: 8px;
+    }
+    .media-frame img { display: block; width: 100%; height: 220px; object-fit: cover; }
+    .media-frame svg {
+      position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none;
+    }
+    .meta-foot {
+      display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+      font-size: 11.5px; color: var(--muted); margin-top: 10px;
+    }
+    audio { width: 100%; height: 36px; margin-top: 6px; }
+    details { margin-top: 16px; }
+    summary { cursor: pointer; font-size: 13px; color: var(--muted); font-weight: 600; }
     pre {
-      background: #070a12; border: 1px solid var(--border); border-radius: 8px;
-      padding: 12px; font-size: 12.5px; overflow-x: auto; color: #cbd5e1; margin-top: 10px;
+      background: #050811; border: 1px solid var(--border); border-radius: 8px;
+      padding: 12px; font-size: 12px; overflow-x: auto; color: #cbd5e1; margin-top: 8px; max-height: 320px;
     }
-    .budget-bar {
-      display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--muted);
-    }
-    .budget-bar strong { color: var(--green); }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
       <div>
-        <span class="badge">Meta Global AI Developer Hackathon · Startup Track</span>
-        <h1 style="font-size: 24px; margin-top: 6px;">AutoAI Lead — 24/7 Bilingual AI Receptionist & Visual Demo Engine</h1>
-      </div>
-      <div class="budget-bar" id="budgetBar">
-        <span>Hard Cap: <strong>$5.00 USD</strong> (of $150 credit)</span>
-        <span>Spent: <strong id="spentVal">$0.0000</strong></span>
-        <span>Cache Hits: <strong id="cacheHitsVal">0</strong></span>
+        <span class="brand-pill">⚡ Meta Global AI Developer Hackathon · Startup Track · Build for Your World</span>
+        <h1>AutoAI Lead — 24/7 Bilingual AI Receptionist & Visual Demo Engine</h1>
+        <p class="subtitle">
+          Turns any local business on Google Maps into an interactive mobile demo site with an instant English/Spanish voice receptionist powered by <strong>Muse Voice Transcribe 1.0</strong>, <strong>Muse Spark 1.3</strong>, <strong>SAM 3.1</strong>, and <strong>Muse Image 1.0</strong>.
+        </p>
       </div>
     </header>
 
-    <div class="grid">
+    <div class="telemetry-strip">
+      <div class="stat-box">
+        <div class="stat-label">Meta API Credit Pool</div>
+        <div class="stat-value">$150.00</div>
+        <div class="stat-sub">Promotional Hackathon Credits</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Hard Code Spend Cap</div>
+        <div class="stat-value green" id="capVal">$5.00</div>
+        <div class="stat-sub">Enforced in SQLite + JSON Guardrail</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Cumulative Real Spend</div>
+        <div class="stat-value green" id="spentVal">$0.0692</div>
+        <div class="stat-sub" id="liveCallsSub">13 live API calls recorded</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Zero-Cost Cache Hits</div>
+        <div class="stat-value" id="cacheHitsVal">0</div>
+        <div class="stat-sub">SHA-256 content-addressed replay</div>
+      </div>
+    </div>
+
+    <div class="preset-bar">
+      <span style="font-size: 12.5px; color: var(--muted); font-weight: 600;">Instant Verified Scenarios ($0.00 Cache Replay):</span>
+      <button class="preset-btn active" data-biz="smile-dental-miami" data-lang="en">🦷 Smile Dental Miami (EN Emergency)</button>
+      <button class="preset-btn" data-biz="smile-dental-miami" data-lang="es">🦷 Smile Dental Miami (ES Urgencia)</button>
+      <button class="preset-btn" data-biz="lone-star-hvac-austin" data-lang="en">❄️ Lone Star HVAC Austin (EN 94°F Emergency)</button>
+      <button class="preset-btn" data-biz="lone-star-hvac-austin" data-lang="es">❄️ Lone Star HVAC Austin (ES Restaurante)</button>
+    </div>
+
+    <div class="layout">
       <div class="card">
-        <h2>1. Trigger Voice Call & Visual Demo Pipeline</h2>
-        <label for="businessSelect">Local Business (Google Places Lead)</label>
+        <div class="card-header">
+          <div class="card-title">Pipeline Controls</div>
+          <span class="model-tag">api.meta.ai/v1</span>
+        </div>
+
+        <label for="businessSelect">Local Business Lead (Google Places)</label>
         <select id="businessSelect">
-          <option value="smile-dental-miami">Smile Dental Clinic Brickell (Miami, FL)</option>
-          <option value="lone-star-hvac-austin">Lone Star AC & Heating (Austin, TX)</option>
+          <option value="smile-dental-miami">Smile Dental Clinic Brickell (Miami, FL · 4.9★)</option>
+          <option value="lone-star-hvac-austin">Lone Star AC & Heating (Austin, TX · 4.8★)</option>
         </select>
 
         <label for="langSelect">Caller Language (EN / ES Bilingual)</label>
@@ -86,56 +206,261 @@
           <option value="es">Español (Llamada de Urgencia / Cita)</option>
         </select>
 
-        <label for="customTranscript">Caller Utterance (or leave blank to run Muse Voice Transcribe preset)</label>
-        <textarea id="customTranscript" rows="3" placeholder="Leave blank for preset audio transcription..."></textarea>
+        <label for="customTranscript">Custom Caller Utterance (optional — leave blank to use WAV audio transcription)</label>
+        <textarea id="customTranscript" rows="3" placeholder="Leave blank to transcribe the recorded caller WAV with muse-voice-transcribe-1.0..."></textarea>
 
-        <label style="display:flex;align-items:center;gap:8px;margin-top:12px;">
-          <input type="checkbox" id="generateHero" style="width:auto;" />
-          Also generate new hero image via Muse Image 1.0 ($0.01/img, cached after 1st run)
+        <label style="display:flex;align-items:center;gap:8px;margin-top:12px;color:var(--text);">
+          <input type="checkbox" id="generateHero" checked style="width:auto;" />
+          Include Muse Image 1.0 Hero Visual
         </label>
 
-        <button class="primary" id="runBtn">Run Meta 4-Model Pipeline</button>
+        <button class="run-btn" id="runBtn">Run Meta 4-Model Pipeline</button>
+
+        <div style="margin-top: 18px; border-top: 1px solid var(--border); padding-top: 12px; font-size: 12px; color: var(--muted);">
+          <strong style="color: var(--text);">Spend Breakdown by Model:</strong>
+          <div id="modelBreakdown" style="margin-top: 6px; display: grid; gap: 4px;"></div>
+        </div>
       </div>
 
-      <div class="card">
-        <h2>2. Pipeline Output (Muse Voice → Muse Spark 1.3 → SAM 3.1 → Muse Image)</h2>
-        <pre id="outputBox">Click "Run Meta 4-Model Pipeline" to inspect the live or cached response.</pre>
+      <div>
+        <div class="steps-grid">
+          <!-- STEP 1: MUSE VOICE TRANSCRIBE -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">1. Speech-to-Text</div>
+              <span class="model-tag">muse-voice-transcribe-1.0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:12px;color:var(--muted);">Caller Audio Recording (24kHz PCM WAV)</span>
+              <span class="status-pill cached" id="asrBadge">CACHED</span>
+            </div>
+            <audio id="callerAudio" controls src="/audio/smile-dental-miami-en.wav"></audio>
+            <div class="quote-box" id="asrTranscript">Loading transcript...</div>
+            <div class="meta-foot">
+              <span id="asrLatency">Latency: —</span>
+              <span id="asrDuration">Audio: —</span>
+              <span id="asrCost">Cost: —</span>
+            </div>
+          </div>
+
+          <!-- STEP 2: MUSE SPARK 1.3 -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">2. Agentic Receptionist</div>
+              <span class="model-tag">muse-spark-1.3</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:12px;color:var(--muted);">Tool Calls + Strict JSON Schema</span>
+              <span class="status-pill cached" id="sparkBadge">CACHED</span>
+            </div>
+            <div class="quote-box" id="sparkReply">Loading receptionist response...</div>
+            <div class="kv-grid">
+              <div class="kv-item"><span>Urgency / Language</span><strong id="sparkUrgency">—</strong></div>
+              <div class="kv-item"><span>Booked Slot</span><strong id="sparkSlot">—</strong></div>
+              <div class="kv-item"><span>Service Requested</span><strong id="sparkService">—</strong></div>
+              <div class="kv-item"><span>Est. Lead Value</span><strong id="sparkValue">—</strong></div>
+            </div>
+            <div class="whatsapp-box" id="sparkWhatsapp">WhatsApp Owner Alert: —</div>
+            <div class="meta-foot">
+              <span id="sparkLatency">Latency: —</span>
+              <span id="sparkTokens">Tokens: —</span>
+              <span id="sparkTools">Tools: —</span>
+            </div>
+          </div>
+
+          <!-- STEP 3: SAM 3.1 -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">3. Scene Segmentation</div>
+              <span class="model-tag">sam-3.1</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:12px;color:var(--muted);" id="samConceptLabel">Prompt: "dental chair"</span>
+              <span class="status-pill cached" id="samBadge">CACHED</span>
+            </div>
+            <div class="media-frame">
+              <img id="samImage" src="/photos/smile-dental-miami.jpg" alt="Business Photo" />
+              <svg id="samOverlay" viewBox="0 0 900 602" preserveAspectRatio="none"></svg>
+            </div>
+            <div class="meta-foot">
+              <span id="samLatency">Latency: —</span>
+              <span id="samObjects">Matched Objects: —</span>
+              <span id="samMaskInfo">Mask: —</span>
+            </div>
+          </div>
+
+          <!-- STEP 4: MUSE IMAGE 1.0 -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">4. On-Brand Hero Visual</div>
+              <span class="model-tag">muse-image-1.0</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:12px;color:var(--muted);">AutoAI Lead Mobile Demo Hero (WebP)</span>
+              <span class="status-pill cached" id="heroBadge">CACHED</span>
+            </div>
+            <div class="media-frame">
+              <img id="heroImage" src="/generated/hero-fadc3c117c4e.webp" alt="Generated Hero Visual" />
+            </div>
+            <div class="meta-foot">
+              <span id="heroLatency">Latency: —</span>
+              <span id="heroTokens">Tokens: —</span>
+              <span id="heroCost">Flat Rate: $0.01/img</span>
+            </div>
+          </div>
+        </div>
+
+        <details>
+          <summary>Inspect Raw JSON Payload from /api/pipeline/run</summary>
+          <pre id="rawJsonBox"></pre>
+        </details>
       </div>
     </div>
   </div>
 
   <script>
-    async function refreshHealth() {
-      const res = await fetch('/api/health');
-      const data = await res.json();
-      document.getElementById('spentVal').textContent = '$' + data.budget.totalSpendUSD.toFixed(4);
-      document.getElementById('cacheHitsVal').textContent = data.budget.totalCacheHits;
+    function setBadge(el, step) {
+      if (!step) return;
+      if (step.cached) {
+        el.textContent = 'CACHED · $0.00';
+        el.className = 'status-pill cached';
+      } else if (step.fallback) {
+        el.textContent = 'FALLBACK · $0.00';
+        el.className = 'status-pill cached';
+      } else {
+        el.textContent = 'LIVE API · $' + Number(step.costUSD || 0).toFixed(4);
+        el.className = 'status-pill live';
+      }
     }
-    document.getElementById('runBtn').addEventListener('click', async () => {
+
+    function renderBudget(budget) {
+      if (!budget) return;
+      document.getElementById('capVal').textContent = '$' + Number(budget.hardCapTotalUSD).toFixed(2);
+      document.getElementById('spentVal').textContent = '$' + Number(budget.totalSpendUSD).toFixed(4);
+      document.getElementById('liveCallsSub').textContent = budget.totalLiveCalls + ' live API calls recorded';
+      document.getElementById('cacheHitsVal').textContent = budget.totalCacheHits;
+
+      const bd = document.getElementById('modelBreakdown');
+      bd.innerHTML = '';
+      for (const [model, info] of Object.entries(budget.byModel || {})) {
+        const row = document.createElement('div');
+        row.style.display = 'flex';
+        row.style.justifyContent = 'space-between';
+        row.innerHTML = `<span>${model}</span><strong style="color:var(--text)">$${Number(info.spendUSD).toFixed(4)} (${info.liveCalls} live / ${info.cacheHits} cached)</strong>`;
+        bd.appendChild(row);
+      }
+    }
+
+    async function runPipeline() {
       const btn = document.getElementById('runBtn');
       btn.disabled = true;
-      btn.textContent = 'Running pipeline...';
+      btn.textContent = 'Running Meta 4-Model Pipeline...';
       try {
+        const businessId = document.getElementById('businessSelect').value;
+        const lang = document.getElementById('langSelect').value;
+        const customTranscript = document.getElementById('customTranscript').value;
+        const generateHero = document.getElementById('generateHero').checked;
+
         const res = await fetch('/api/pipeline/run', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            businessId: document.getElementById('businessSelect').value,
-            lang: document.getElementById('langSelect').value,
-            customTranscript: document.getElementById('customTranscript').value,
-            generateHero: document.getElementById('generateHero').checked,
-          }),
+          body: JSON.stringify({ businessId, lang, customTranscript, generateHero }),
         });
         const data = await res.json();
-        document.getElementById('outputBox').textContent = JSON.stringify(data, null, 2);
-        document.getElementById('spentVal').textContent = '$' + data.budget.totalSpendUSD.toFixed(4);
-        document.getElementById('cacheHitsVal').textContent = data.budget.totalCacheHits;
+        document.getElementById('rawJsonBox').textContent = JSON.stringify(data, null, 2);
+        renderBudget(data.budget);
+
+        // 1. ASR
+        const asr = data.steps.asr;
+        setBadge(document.getElementById('asrBadge'), asr);
+        if (asr.audioUrl) {
+          const audioEl = document.getElementById('callerAudio');
+          if (!audioEl.src.endsWith(asr.audioUrl)) audioEl.src = asr.audioUrl;
+        }
+        document.getElementById('asrTranscript').textContent = '"' + asr.transcript + '"';
+        document.getElementById('asrLatency').textContent = 'Latency: ' + (asr.latencyMs || 0) + ' ms';
+        document.getElementById('asrDuration').textContent = 'Audio: ' + ((asr.audioDurationMs || 0) / 1000).toFixed(2) + 's';
+        document.getElementById('asrCost').textContent = 'Orig. Cost: $' + Number(asr.originalCostUSD ?? asr.costUSD ?? 0).toFixed(5);
+
+        // 2. Muse Spark 1.3
+        const rec = data.steps.reception;
+        const q = rec.qualification || {};
+        setBadge(document.getElementById('sparkBadge'), rec);
+        document.getElementById('sparkReply').textContent = '"' + (q.receptionist_reply || '') + '"';
+        document.getElementById('sparkUrgency').textContent = (q.urgency || 'high').toUpperCase() + ' · ' + (q.detected_language || lang).toUpperCase();
+        document.getElementById('sparkSlot').textContent = q.preferred_slot || '—';
+        document.getElementById('sparkService').textContent = q.service_requested || '—';
+        document.getElementById('sparkValue').textContent = '$' + Number(q.estimated_value_usd || 0).toLocaleString() + ' USD';
+        document.getElementById('sparkWhatsapp').textContent = q.owner_whatsapp_summary || '';
+        document.getElementById('sparkLatency').textContent = 'Latency: ' + (rec.latencyMs || 0) + ' ms';
+        document.getElementById('sparkTokens').textContent = 'Tokens: ' + (rec.usage?.total_tokens || 0) + ' (' + (rec.usage?.prompt_tokens || 0) + ' in / ' + (rec.usage?.completion_tokens || 0) + ' out)';
+        document.getElementById('sparkTools').textContent = 'Tools called: ' + (rec.toolTrace?.length || 0);
+
+        // 3. SAM 3.1
+        const sam = data.steps.sam;
+        setBadge(document.getElementById('samBadge'), sam);
+        document.getElementById('samConceptLabel').textContent = 'Prompt: "' + sam.concept + '"';
+        document.getElementById('samImage').src = sam.imageUrl;
+        const svg = document.getElementById('samOverlay');
+        svg.innerHTML = '';
+        const objs = sam.objects || [];
+        if (objs.length > 0) {
+          const w = objs[0].box.width || 900;
+          const h = objs[0].box.height || 600;
+          svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+          objs.forEach((o, idx) => {
+            const b = o.box;
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', b.x1);
+            rect.setAttribute('y', b.y1);
+            rect.setAttribute('width', Math.max(10, b.x2 - b.x1));
+            rect.setAttribute('height', Math.max(10, b.y2 - b.y1));
+            rect.setAttribute('fill', 'rgba(59, 130, 246, 0.22)');
+            rect.setAttribute('stroke', '#3b82f6');
+            rect.setAttribute('stroke-width', '4');
+            svg.appendChild(rect);
+
+            const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+            label.setAttribute('x', b.x1 + 8);
+            label.setAttribute('y', Math.max(24, b.y1 + 22));
+            label.setAttribute('fill', '#ffffff');
+            label.setAttribute('font-size', '20');
+            label.setAttribute('font-weight', 'bold');
+            label.textContent = `${sam.concept} #${idx + 1}`;
+            svg.appendChild(label);
+          });
+        }
+        document.getElementById('samLatency').textContent = 'Latency: ' + (sam.latencyMs || 0) + ' ms';
+        document.getElementById('samObjects').textContent = 'Objects segmented: ' + objs.length;
+        document.getElementById('samMaskInfo').textContent = objs[0]?.mask ? `Mask: ${objs[0].mask.rows}×${objs[0].mask.cols} (${objs[0].mask.encoding})` : 'Mask: —';
+
+        // 4. Muse Image 1.0
+        const hero = data.steps.hero;
+        if (hero) {
+          setBadge(document.getElementById('heroBadge'), hero);
+          if (hero.imageUrl) document.getElementById('heroImage').src = hero.imageUrl;
+          document.getElementById('heroLatency').textContent = 'Latency: ' + (hero.latencyMs || 0) + ' ms';
+          document.getElementById('heroTokens').textContent = 'Tokens: ' + (hero.usage?.total_tokens || 0);
+        }
       } finally {
         btn.disabled = false;
         btn.textContent = 'Run Meta 4-Model Pipeline';
       }
+    }
+
+    document.getElementById('runBtn').addEventListener('click', runPipeline);
+    document.querySelectorAll('.preset-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.preset-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('businessSelect').value = btn.dataset.biz;
+        document.getElementById('langSelect').value = btn.dataset.lang;
+        document.getElementById('customTranscript').value = '';
+        runPipeline();
+      });
     });
-    refreshHealth();
+
+    runPipeline();
   </script>
 </body>
 </html>
