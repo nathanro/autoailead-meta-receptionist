@@ -170,14 +170,15 @@ export class SpendGuardrails {
   _persist(cacheEntry = null, ledgerEntry = null) {
     fs.writeFileSync(this.jsonMirrorPath, JSON.stringify(this.state, null, 2), 'utf8');
     try {
+      const safeHex = (val) => Buffer.from(String(val ?? ''), 'utf8').toString('hex');
       let sql = '';
       if (cacheEntry) {
         sql += `INSERT OR REPLACE INTO api_cache (cache_key, endpoint, model, cost_usd, response_json, created_at)
-          VALUES ('${cacheEntry.key}', '${cacheEntry.endpoint.replace(/'/g, "''")}', '${cacheEntry.model.replace(/'/g, "''")}', ${Number(cacheEntry.costUSD)}, '${JSON.stringify(cacheEntry.value).replace(/'/g, "''")}', '${cacheEntry.createdAt}');\n`;
+          VALUES (CAST(X'${safeHex(cacheEntry.key)}' AS TEXT), CAST(X'${safeHex(cacheEntry.endpoint)}' AS TEXT), CAST(X'${safeHex(cacheEntry.model)}' AS TEXT), ${Number(cacheEntry.costUSD) || 0}, CAST(X'${safeHex(JSON.stringify(cacheEntry.value))}' AS TEXT), CAST(X'${safeHex(cacheEntry.createdAt)}' AS TEXT));\n`;
       }
       if (ledgerEntry) {
         sql += `INSERT INTO spend_ledger (session_id, endpoint, model, cost_usd, cached, created_at)
-          VALUES ('${ledgerEntry.sessionId.replace(/'/g, "''")}', '${ledgerEntry.endpoint.replace(/'/g, "''")}', '${ledgerEntry.model.replace(/'/g, "''")}', ${Number(ledgerEntry.costUSD)}, ${ledgerEntry.cached ? 1 : 0}, '${ledgerEntry.createdAt}');\n`;
+          VALUES (CAST(X'${safeHex(ledgerEntry.sessionId)}' AS TEXT), CAST(X'${safeHex(ledgerEntry.endpoint)}' AS TEXT), CAST(X'${safeHex(ledgerEntry.model)}' AS TEXT), ${Number(ledgerEntry.costUSD) || 0}, ${ledgerEntry.cached ? 1 : 0}, CAST(X'${safeHex(ledgerEntry.createdAt)}' AS TEXT));\n`;
       }
       if (sql) {
         execFileSync('sqlite3', [this.sqlitePath], { input: sql });
