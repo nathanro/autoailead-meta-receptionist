@@ -8,7 +8,7 @@ export const DEMO_BUSINESSES = {
     reviewCount: 214,
     phone: '+1 (305) 555-0194',
     languages: ['English', 'Spanish'],
-    samplePhotoUrl: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=900&q=80',
+    samplePhotoUrl: '/photos/smile-dental-miami.jpg',
     samTargetConcept: 'dental chair',
     heroPrompt: 'Modern bright dental clinic reception in Brickell Miami, warm sunlight, minimalist luxury interior, photorealistic',
     presets: {
@@ -57,8 +57,8 @@ export const DEMO_BUSINESSES = {
     reviewCount: 168,
     phone: '+1 (512) 555-0148',
     languages: ['English', 'Spanish'],
-    samplePhotoUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=900&q=80',
-    samTargetConcept: 'air conditioner unit',
+    samplePhotoUrl: '/photos/lone-star-hvac-austin.jpg',
+    samTargetConcept: 'technician',
     heroPrompt: 'Clean modern residential HVAC service van parked in front of an Austin Texas home at golden hour, crisp commercial photography',
     presets: {
       en: {

@@ -6,8 +6,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_DIR = path.join(__dirname, '..', 'data');
-const SQLITE_PATH = path.join(DATA_DIR, 'guardrails.sqlite');
-const JSON_MIRROR_PATH = path.join(DATA_DIR, 'runtime-cache.json');
+
 
 /**
  * Official Meta Model API Pricing (verified Oct 26, 2026 at https://dev.meta.ai/docs/pricing-rate-limits)
@@ -106,7 +105,10 @@ export function hashRequestKey(parts) {
 
 export class SpendGuardrails {
   constructor(options = {}) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+    this.dataDir = options.dataDir || DATA_DIR;
+    this.sqlitePath = path.join(this.dataDir, "guardrails.sqlite");
+    this.jsonMirrorPath = path.join(this.dataDir, "runtime-cache.json");
+    fs.mkdirSync(this.dataDir, { recursive: true });
     this.maxTotalSpendUSD = Number(
       options.maxTotalSpendUSD ?? process.env.MAX_TOTAL_SPEND_USD ?? 5.0
     );
@@ -128,52 +130,57 @@ export class SpendGuardrails {
   }
 
   _initStorage() {
-    if (fs.existsSync(JSON_MIRROR_PATH)) {
+    if (fs.existsSync(this.jsonMirrorPath)) {
       try {
-        const parsed = JSON.parse(fs.readFileSync(JSON_MIRROR_PATH, 'utf8'));
+        const parsed = JSON.parse(fs.readFileSync(this.jsonMirrorPath, 'utf8'));
         this.state = { ...this.state, ...parsed };
       } catch (_) {
         // ignore corrupt mirror
       }
     }
     try {
-      execFileSync('sqlite3', [
-        SQLITE_PATH,
-        `CREATE TABLE IF NOT EXISTS api_cache (
-          cache_key TEXT PRIMARY KEY,
-          endpoint TEXT NOT NULL,
-          model TEXT NOT NULL,
-          cost_usd REAL NOT NULL,
-          response_json TEXT NOT NULL,
-          created_at TEXT NOT NULL
-        );
-        CREATE TABLE IF NOT EXISTS spend_ledger (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          session_id TEXT NOT NULL,
-          endpoint TEXT NOT NULL,
-          model TEXT NOT NULL,
-          cost_usd REAL NOT NULL,
-          cached INTEGER NOT NULL,
-          created_at TEXT NOT NULL
-        );`,
-      ]);
+      execFileSync(
+        'sqlite3',
+        [this.sqlitePath],
+        {
+          input: `CREATE TABLE IF NOT EXISTS api_cache (
+            cache_key TEXT PRIMARY KEY,
+            endpoint TEXT NOT NULL,
+            model TEXT NOT NULL,
+            cost_usd REAL NOT NULL,
+            response_json TEXT NOT NULL,
+            created_at TEXT NOT NULL
+          );
+          CREATE TABLE IF NOT EXISTS spend_ledger (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            session_id TEXT NOT NULL,
+            endpoint TEXT NOT NULL,
+            model TEXT NOT NULL,
+            cost_usd REAL NOT NULL,
+            cached INTEGER NOT NULL,
+            created_at TEXT NOT NULL
+          );`,
+        }
+      );
     } catch (_) {
       // Fallback to JSON mirror if sqlite3 CLI is unavailable in container
     }
   }
 
   _persist(cacheEntry = null, ledgerEntry = null) {
-    fs.writeFileSync(JSON_MIRROR_PATH, JSON.stringify(this.state, null, 2), 'utf8');
+    fs.writeFileSync(this.jsonMirrorPath, JSON.stringify(this.state, null, 2), 'utf8');
     try {
+      let sql = '';
       if (cacheEntry) {
-        const sql = `INSERT OR REPLACE INTO api_cache (cache_key, endpoint, model, cost_usd, response_json, created_at)
-          VALUES ('${cacheEntry.key}', '${cacheEntry.endpoint.replace(/'/g, "''")}', '${cacheEntry.model.replace(/'/g, "''")}', ${Number(cacheEntry.costUSD)}, '${JSON.stringify(cacheEntry.value).replace(/'/g, "''")}', '${cacheEntry.createdAt}');`;
-        execFileSync('sqlite3', [SQLITE_PATH, sql]);
+        sql += `INSERT OR REPLACE INTO api_cache (cache_key, endpoint, model, cost_usd, response_json, created_at)
+          VALUES ('${cacheEntry.key}', '${cacheEntry.endpoint.replace(/'/g, "''")}', '${cacheEntry.model.replace(/'/g, "''")}', ${Number(cacheEntry.costUSD)}, '${JSON.stringify(cacheEntry.value).replace(/'/g, "''")}', '${cacheEntry.createdAt}');\n`;
       }
       if (ledgerEntry) {
-        const sql = `INSERT INTO spend_ledger (session_id, endpoint, model, cost_usd, cached, created_at)
-          VALUES ('${ledgerEntry.sessionId.replace(/'/g, "''")}', '${ledgerEntry.endpoint.replace(/'/g, "''")}', '${ledgerEntry.model.replace(/'/g, "''")}', ${Number(ledgerEntry.costUSD)}, ${ledgerEntry.cached ? 1 : 0}, '${ledgerEntry.createdAt}');`;
-        execFileSync('sqlite3', [SQLITE_PATH, sql]);
+        sql += `INSERT INTO spend_ledger (session_id, endpoint, model, cost_usd, cached, created_at)
+          VALUES ('${ledgerEntry.sessionId.replace(/'/g, "''")}', '${ledgerEntry.endpoint.replace(/'/g, "''")}', '${ledgerEntry.model.replace(/'/g, "''")}', ${Number(ledgerEntry.costUSD)}, ${ledgerEntry.cached ? 1 : 0}, '${ledgerEntry.createdAt}');\n`;
+      }
+      if (sql) {
+        execFileSync('sqlite3', [this.sqlitePath], { input: sql });
       }
     } catch (_) {
       // JSON mirror already persisted
@@ -203,7 +210,11 @@ export class SpendGuardrails {
     };
     this.state.ledger.push(ledgerEntry);
     this._persist(null, ledgerEntry);
-    return entry.value;
+    return {
+      ...entry.value,
+      originalCostUSD: entry.costUSD,
+      cachedAt: entry.createdAt,
+    };
   }
 
   canSpend(estimatedCostUSD, sessionId = 'default') {
@@ -258,6 +269,20 @@ export class SpendGuardrails {
 
   getSummary(sessionId = 'default') {
     const sess = this.getSession(sessionId);
+    const byModel = {};
+    for (const item of this.state.ledger) {
+      if (!byModel[item.model]) {
+        byModel[item.model] = { liveCalls: 0, cacheHits: 0, spendUSD: 0 };
+      }
+      if (item.cached) {
+        byModel[item.model].cacheHits += 1;
+      } else {
+        byModel[item.model].liveCalls += 1;
+        byModel[item.model].spendUSD = Number(
+          (byModel[item.model].spendUSD + Number(item.costUSD || 0)).toFixed(6)
+        );
+      }
+    }
     return {
       creditPoolUSD: 150.0,
       hardCapTotalUSD: this.maxTotalSpendUSD,
@@ -268,6 +293,7 @@ export class SpendGuardrails {
       totalLiveCalls: this.state.totalLiveCalls,
       totalCacheHits: this.state.totalCacheHits,
       cachedEntriesCount: Object.keys(this.state.cache).length,
+      byModel,
       session: {
         sessionId,
         spendUSD: Number(sess.spendUSD.toFixed(6)),

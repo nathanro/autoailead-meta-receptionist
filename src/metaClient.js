@@ -1,3 +1,6 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   computeTokenCostUSD,
   computeAudioCostUSD,
@@ -6,6 +9,11 @@ import {
   hashRequestKey,
 } from './guardrails.js';
 import { DEMO_BUSINESSES, FALLBACK_SAM_OUTPUT } from './fallbackData.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PUBLIC_DIR = path.join(__dirname, '..', 'public');
+const GENERATED_DIR = path.join(PUBLIC_DIR, 'generated');
+const AUDIO_DIR = path.join(PUBLIC_DIR, 'audio');
 
 const DEFAULT_BASE_URL = 'https://api.meta.ai/v1';
 
@@ -33,8 +41,7 @@ export function parseSamSegmentationText(rawText = '') {
     const frameIndex = frameMatch ? Number(frameMatch[1]) : 0;
     const body = frameMatch ? frameMatch[2] : line;
 
-    const recordRegex =
-      /(\d+)<\|box;([^|]+)\|><\|mask;([^|]+)\|>/g;
+    const recordRegex = /(\d+)<\|box;([^|]+)\|><\|mask;([^|]+)\|>/g;
     let match;
     while ((match = recordRegex.exec(body)) !== null) {
       const objectId = Number(match[1]);
@@ -173,6 +180,7 @@ export function executeLocalToolCall(name, args = {}) {
 export class MetaPipelineClient {
   constructor(guardrails) {
     this.guardrails = guardrails;
+    fs.mkdirSync(GENERATED_DIR, { recursive: true });
   }
 
   /**
@@ -190,34 +198,42 @@ export class MetaPipelineClient {
     const business = DEMO_BUSINESSES[businessId] || DEMO_BUSINESSES['smile-dental-miami'];
     const preset = business.presets[lang] || business.presets.en;
 
+    let effectiveWav = wavBuffer;
+    const defaultWavPath = path.join(AUDIO_DIR, `${businessId}-${lang}.wav`);
+    if (!effectiveWav && fs.existsSync(defaultWavPath)) {
+      effectiveWav = fs.readFileSync(defaultWavPath);
+    }
+
     const cacheKey = hashRequestKey({
       endpoint,
       model,
       businessId,
       lang,
-      audioHash: wavBuffer ? hashRequestKey(wavBuffer.toString('base64')) : 'preset',
+      audioHash: effectiveWav ? hashRequestKey(effectiveWav.toString('base64')) : 'preset',
     });
 
     const cached = this.guardrails.getCached(cacheKey, sessionId, { endpoint, model });
     if (cached) {
-      return { ...cached, cached: true, costUSD: 0 };
+      return { ...cached, cached: true, fallback: false, costUSD: 0 };
     }
 
     const apiKey = getMetaApiKey();
     const budgetCheck = this.guardrails.canSpend(0.003, sessionId);
 
-    if (!apiKey || !wavBuffer || !budgetCheck.allowed) {
+    if (!apiKey || !effectiveWav || !budgetCheck.allowed) {
       return {
         model,
         endpoint,
         transcript: preset.transcript,
         audioDurationMs: 9200,
-        turns: [{ turnId: 1, startMs: 240, endMs: 9100, transcript: preset.transcript }],
+        latencyMs: 0,
+        audioUrl: businessId === 'smile-dental-miami' ? `/audio/${businessId}-${lang}.wav` : null,
+        turns: [{ turnId: 0, startMs: 0, endMs: 9100, transcript: preset.transcript }],
         cached: false,
         fallback: true,
         fallbackReason: !apiKey
           ? 'no_api_key_configured'
-          : !wavBuffer
+          : !effectiveWav
           ? 'using_demo_audio_preset'
           : budgetCheck.reason,
         costUSD: 0,
@@ -225,22 +241,31 @@ export class MetaPipelineClient {
     }
 
     try {
+      const t0 = Date.now();
       const form = new FormData();
       const requestPayload = {
         mode: 'ENDPOINTING',
         model,
         audioEncoding: 'WAV',
         languageBias: ['English', 'Spanish'],
-        keywords: [business.name, 'AutoAI Lead', 'appointment', 'cita', 'urgencia', 'emergency'],
+        keywords: [
+          business.name,
+          'Brickell',
+          'Miami',
+          'AutoAI Lead',
+          'crown',
+          'muela',
+          'emergency',
+        ],
       };
       form.append(
         'request',
         new Blob([JSON.stringify(requestPayload)], { type: 'application/json' })
       );
-      form.append('audio', new Blob([wavBuffer], { type: 'audio/wav' }), 'caller.wav');
+      form.append('audio', new Blob([effectiveWav], { type: 'audio/wav' }), `${businessId}-${lang}.wav`);
 
       const res = await fetch(
-        `${getMetaBaseUrl()}${endpoint}?sessionId=${encodeURIComponent(sessionId)}`,
+        `${getMetaBaseUrl().replace(/\/v1$/, '')}${endpoint}?sessionId=${encodeURIComponent(sessionId)}`,
         {
           method: 'POST',
           headers: { Authorization: `Bearer ${apiKey}` },
@@ -252,12 +277,15 @@ export class MetaPipelineClient {
         throw new Error(`Meta ASR HTTP ${res.status}`);
       }
       const data = await res.json();
+      const latencyMs = Date.now() - t0;
       const costUSD = computeAudioCostUSD(data.audioDurationMs || 9000);
       const result = {
         model,
         endpoint,
         transcript: data.transcript || preset.transcript,
         audioDurationMs: data.audioDurationMs || 9000,
+        latencyMs,
+        audioUrl: businessId === 'smile-dental-miami' ? `/audio/${businessId}-${lang}.wav` : null,
         turns: data.turns || [],
       };
       this.guardrails.recordLiveCall({
@@ -275,7 +303,9 @@ export class MetaPipelineClient {
         endpoint,
         transcript: preset.transcript,
         audioDurationMs: 9200,
-        turns: [{ turnId: 1, startMs: 240, endMs: 9100, transcript: preset.transcript }],
+        latencyMs: 0,
+        audioUrl: businessId === 'smile-dental-miami' ? `/audio/${businessId}-${lang}.wav` : null,
+        turns: [{ turnId: 0, startMs: 0, endMs: 9100, transcript: preset.transcript }],
         cached: false,
         fallback: true,
         fallbackReason: err.message,
@@ -309,7 +339,7 @@ export class MetaPipelineClient {
 
     const cached = this.guardrails.getCached(cacheKey, sessionId, { endpoint, model });
     if (cached) {
-      return { ...cached, cached: true, costUSD: 0 };
+      return { ...cached, cached: true, fallback: false, costUSD: 0 };
     }
 
     const apiKey = getMetaApiKey();
@@ -339,6 +369,8 @@ export class MetaPipelineClient {
         endpoint,
         qualification: preset.qualification,
         toolTrace,
+        latencyMs: 0,
+        usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
         cached: false,
         fallback: true,
         fallbackReason: !apiKey ? 'no_api_key_configured' : budgetCheck.reason,
@@ -347,10 +379,11 @@ export class MetaPipelineClient {
     }
 
     try {
+      const t0 = Date.now();
       const messages = [
         {
           role: 'system',
-          content: `You are the 24/7 bilingual AI Receptionist for ${business.name} (${business.niche} in ${business.city}). Respond in the caller's language (English or Spanish). Check calendar slots, book the appointment, and return the structured LeadQualification JSON.`,
+          content: `You are the 24/7 bilingual AI Receptionist for ${business.name} (${business.niche} in ${business.city}). Respond in the caller's language (${lang === 'es' ? 'Spanish' : 'English'}). First use check_calendar_slots or book_appointment to reserve their requested slot, then return the structured LeadQualification JSON.`,
         },
         {
           role: 'user',
@@ -359,7 +392,7 @@ export class MetaPipelineClient {
       ];
 
       // Turn 1: allow Muse Spark 1.3 to invoke tools (parallel_tool_calls: false, tool_choice: "auto")
-      const r1 = await fetch(`${getMetaBaseUrl()}${endpoint}`, {
+      const r1 = await fetch(`${getMetaBaseUrl().replace(/\/v1$/, '')}${endpoint}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${apiKey}`,
@@ -376,6 +409,13 @@ export class MetaPipelineClient {
       if (!r1.ok) throw new Error(`Muse Spark HTTP ${r1.status}`);
       const d1 = await r1.json();
       let totalCostUSD = computeTokenCostUSD(model, d1.usage);
+      let promptTokens = Number(d1.usage?.prompt_tokens ?? d1.usage?.input_tokens ?? 0);
+      let completionTokens = Number(d1.usage?.completion_tokens ?? d1.usage?.output_tokens ?? 0);
+      let cachedTokens = Number(
+        d1.usage?.prompt_tokens_details?.cached_tokens ??
+          d1.usage?.input_tokens_details?.cached_tokens ??
+          0
+      );
       const toolTrace = [];
 
       const msg1 = d1.choices?.[0]?.message;
@@ -401,7 +441,7 @@ export class MetaPipelineClient {
       }
 
       // Final Turn: Structured Output conforming strictly to LEAD_QUALIFICATION_JSON_SCHEMA
-      const r2 = await fetch(`${getMetaBaseUrl()}${endpoint}`, {
+      const r2 = await fetch(`${getMetaBaseUrl().replace(/\/v1$/, '')}${endpoint}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${apiKey}`,
@@ -418,7 +458,15 @@ export class MetaPipelineClient {
       });
       if (!r2.ok) throw new Error(`Muse Spark Structured HTTP ${r2.status}`);
       const d2 = await r2.json();
+      const latencyMs = Date.now() - t0;
       totalCostUSD = Number((totalCostUSD + computeTokenCostUSD(model, d2.usage)).toFixed(8));
+      promptTokens += Number(d2.usage?.prompt_tokens ?? d2.usage?.input_tokens ?? 0);
+      completionTokens += Number(d2.usage?.completion_tokens ?? d2.usage?.output_tokens ?? 0);
+      cachedTokens += Number(
+        d2.usage?.prompt_tokens_details?.cached_tokens ??
+          d2.usage?.input_tokens_details?.cached_tokens ??
+          0
+      );
 
       const rawContent = d2.choices?.[0]?.message?.content || '{}';
       const qualification = JSON.parse(rawContent);
@@ -427,6 +475,13 @@ export class MetaPipelineClient {
         endpoint,
         qualification,
         toolTrace,
+        latencyMs,
+        usage: {
+          prompt_tokens: promptTokens,
+          completion_tokens: completionTokens,
+          cached_tokens: cachedTokens,
+          total_tokens: promptTokens + completionTokens,
+        },
       };
       this.guardrails.recordLiveCall({
         cacheKey,
@@ -443,6 +498,8 @@ export class MetaPipelineClient {
         endpoint,
         qualification: preset.qualification,
         toolTrace: [],
+        latencyMs: 0,
+        usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
         cached: false,
         fallback: true,
         fallbackReason: err.message,
@@ -453,11 +510,11 @@ export class MetaPipelineClient {
 
   /**
    * 3. Media Segmentation via SAM 3.1 (sam-3.1)
-   * Endpoint: POST https://api.meta.ai/v1/responses
+   * Endpoint: POST https://api.meta.ai/v1/responses (SSE stream)
    */
   async segmentBusinessPhoto({
     imageUrl,
-    concept = 'dental chair',
+    concept = 'chair',
     sessionId = 'default',
   }) {
     const model = 'sam-3.1';
@@ -466,7 +523,7 @@ export class MetaPipelineClient {
 
     const cached = this.guardrails.getCached(cacheKey, sessionId, { endpoint, model });
     if (cached) {
-      return { ...cached, cached: true, costUSD: 0 };
+      return { ...cached, cached: true, fallback: false, costUSD: 0 };
     }
 
     const apiKey = getMetaApiKey();
@@ -479,6 +536,7 @@ export class MetaPipelineClient {
         concept,
         imageUrl,
         ...FALLBACK_SAM_OUTPUT,
+        latencyMs: 0,
         cached: false,
         fallback: true,
         fallbackReason: !apiKey ? 'no_api_key_configured' : budgetCheck.reason,
@@ -487,11 +545,13 @@ export class MetaPipelineClient {
     }
 
     try {
-      const res = await fetch(`${getMetaBaseUrl()}${endpoint}`, {
+      const t0 = Date.now();
+      const res = await fetch(`${getMetaBaseUrl().replace(/\/v1$/, '')}${endpoint}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
+          Accept: 'text/event-stream',
         },
         body: JSON.stringify({
           model,
@@ -501,23 +561,36 @@ export class MetaPipelineClient {
               role: 'user',
               content: [
                 { type: 'input_text', text: concept },
-                { type: 'input_image', image_url: imageUrl },
+                {
+                  type: 'input_image',
+                  image_url: imageUrl.startsWith('/') && fs.existsSync(path.join(PUBLIC_DIR, imageUrl))
+                    ? `data:image/jpeg;base64,${fs.readFileSync(path.join(PUBLIC_DIR, imageUrl)).toString('base64')}`
+                    : imageUrl,
+                },
               ],
             },
           ],
-          stream: false,
+          stream: true,
           metadata: { mask_encoding: 'one_bit' },
         }),
       });
       if (!res.ok) throw new Error(`SAM 3.1 HTTP ${res.status}`);
-      const data = await res.json();
-      const rawStreamText =
-        data.output_text ||
-        data.output
-          ?.flatMap((o) => o.content || [])
-          .map((c) => c.text || '')
-          .join('\n') ||
-        '';
+      const sseText = await res.text();
+      const latencyMs = Date.now() - t0;
+
+      let rawStreamText = '';
+      for (const line of sseText.split(/\r?\n/)) {
+        if (!line.startsWith('data: ')) continue;
+        const payload = line.slice(6).trim();
+        if (!payload || payload === '[DONE]') continue;
+        try {
+          const evt = JSON.parse(payload);
+          if (evt.type === 'response.output_text.delta' && evt.delta) {
+            rawStreamText += evt.delta;
+          }
+        } catch (_) {}
+      }
+
       const objects = parseSamSegmentationText(rawStreamText);
       const costUSD = computeSamCostUSD({ images: 1 });
       const result = {
@@ -525,8 +598,11 @@ export class MetaPipelineClient {
         endpoint,
         concept,
         imageUrl,
-        rawStreamText,
+        rawStreamPreview:
+          rawStreamText.length > 260 ? `${rawStreamText.slice(0, 260)}...` : rawStreamText,
+        objectsCount: objects.length,
         objects,
+        latencyMs,
       };
       this.guardrails.recordLiveCall({
         cacheKey,
@@ -544,6 +620,7 @@ export class MetaPipelineClient {
         concept,
         imageUrl,
         ...FALLBACK_SAM_OUTPUT,
+        latencyMs: 0,
         cached: false,
         fallback: true,
         fallbackReason: err.message,
@@ -564,7 +641,7 @@ export class MetaPipelineClient {
 
     const cached = this.guardrails.getCached(cacheKey, sessionId, { endpoint, model });
     if (cached) {
-      return { ...cached, cached: true, costUSD: 0 };
+      return { ...cached, cached: true, fallback: false, costUSD: 0 };
     }
 
     const apiKey = getMetaApiKey();
@@ -578,6 +655,7 @@ export class MetaPipelineClient {
         imageUrl:
           'https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&w=1000&q=80',
         outputFormat: 'webp',
+        latencyMs: 0,
         cached: false,
         fallback: true,
         fallbackReason: !apiKey ? 'no_api_key_configured' : budgetCheck.reason,
@@ -586,7 +664,8 @@ export class MetaPipelineClient {
     }
 
     try {
-      const res = await fetch(`${getMetaBaseUrl()}${endpoint}`, {
+      const t0 = Date.now();
+      const res = await fetch(`${getMetaBaseUrl().replace(/\/v1$/, '')}${endpoint}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${apiKey}`,
@@ -608,14 +687,21 @@ export class MetaPipelineClient {
       });
       if (!res.ok) throw new Error(`Muse Image HTTP ${res.status}`);
       const data = await res.json();
+      const latencyMs = Date.now() - t0;
       const b64 = data.data?.[0]?.b64_json;
+      const fileName = `hero-${cacheKey.slice(0, 12)}.webp`;
+      if (b64) {
+        fs.writeFileSync(path.join(GENERATED_DIR, fileName), Buffer.from(b64, 'base64'));
+      }
       const costUSD = computeImageCostUSD(1);
       const result = {
         model,
         endpoint,
         prompt,
-        imageUrl: b64 ? `data:image/webp;base64,${b64}` : null,
+        imageUrl: b64 ? `/generated/${fileName}` : null,
         outputFormat: data.output_format || 'webp',
+        latencyMs,
+        usage: data.usage || null,
       };
       this.guardrails.recordLiveCall({
         cacheKey,
@@ -634,6 +720,7 @@ export class MetaPipelineClient {
         imageUrl:
           'https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&w=1000&q=80',
         outputFormat: 'webp',
+        latencyMs: 0,
         cached: false,
         fallback: true,
         fallbackReason: err.message,

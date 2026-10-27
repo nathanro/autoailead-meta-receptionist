@@ -1,4 +1,7 @@
 import test from 'node:test';
+import os from 'node:os';
+import fs from 'node:fs';
+import path from 'node:path';
 import assert from 'node:assert/strict';
 import {
   SpendGuardrails,
@@ -46,7 +49,9 @@ test('SAM 3.1 special-token wire parser extracts boxes and masks accurately', ()
 });
 
 test('SpendGuardrails enforces hard budget caps and caches repeat calls at $0', async () => {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "meta-guardrails-test-"));
   const g = new SpendGuardrails({
+    dataDir: tmpDir,
     maxTotalSpendUSD: 0.05,
     maxSessionSpendUSD: 0.02,
     maxCallsPerSession: 2,
@@ -62,14 +67,18 @@ test('SpendGuardrails enforces hard budget caps and caches repeat calls at $0', 
   });
   // Cache hit costs $0
   const hit = g.getCached('k1', sId);
-  assert.deepEqual(hit, { ok: true });
+  assert.equal(hit.ok, true);
+  assert.equal(hit.originalCostUSD, 0.01);
 
   // Exceeding session spend cap is blocked
   const check = g.canSpend(0.015, sId);
   assert.equal(check.allowed, false);
   assert.match(check.reason, /session_budget_cap_reached/);
 
-  // Pipeline client falls back cleanly with zero errors when no API key is set
+  const savedKey = process.env.META_API_KEY;
+  const savedModelKey = process.env.MODEL_API_KEY;
+  delete process.env.META_API_KEY;
+  delete process.env.MODEL_API_KEY;
   const client = new MetaPipelineClient(g);
   const res = await client.qualifyAndBookLead({
     businessId: 'smile-dental-miami',
@@ -78,4 +87,6 @@ test('SpendGuardrails enforces hard budget caps and caches repeat calls at $0', 
   });
   assert.equal(res.qualification.detected_language, 'es');
   assert.equal(res.costUSD, 0);
+  if (savedKey) process.env.META_API_KEY = savedKey;
+  if (savedModelKey) process.env.MODEL_API_KEY = savedModelKey;
 });
