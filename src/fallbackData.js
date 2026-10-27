@@ -15,7 +15,7 @@ export const DEMO_BUSINESSES = {
       en: {
         audioLabel: 'Caller (EN): Broken crown emergency before Friday trip',
         transcript:
-          "Hi, I cracked my front dental crown eating lunch in Brickell and I'm flying out Friday morning. Do you have any emergency slot tomorrow morning and how much is an exam?",
+          "Hi, I cracked my front dental crown eating lunch in Brickell and I am flying out Friday morning. Do you have any emergency slot tomorrow at 9 30?",
         qualification: {
           caller_name: 'Marcus Vance',
           detected_language: 'en',
@@ -32,7 +32,7 @@ export const DEMO_BUSINESSES = {
       es: {
         audioLabel: 'Llamada (ES): Dolor de muela urgente hoy en la tarde',
         transcript:
-          'Hola buenas tardes, hablo porque tengo un dolor fuerte en una muela desde ayer y busco dentista que hable español aquí en Miami. ¿Tienen espacio hoy después de las 4 pm?',
+          'Hola buenas tardes, tengo un dolor fuerte en una muela desde ayer y busco dentista que hable español aquí en Miami. ¿Tienen espacio hoy a las cuatro y media?',
         qualification: {
           caller_name: 'Valeria Gómez',
           detected_language: 'es',
@@ -64,7 +64,7 @@ export const DEMO_BUSINESSES = {
       en: {
         audioLabel: 'Caller (EN): AC blowing warm air, 94°F in Austin',
         transcript:
-          'Hey, our upstairs AC unit stopped cooling and it is 94 degrees inside with two kids. Can a tech come out to South Congress this afternoon?',
+          'Hey, our upstairs AC unit stopped cooling and it is 94 degrees inside with two kids. Can a technician come out to South Congress this afternoon at 2 PM?',
         qualification: {
           caller_name: 'Devon Brooks',
           detected_language: 'en',
@@ -81,7 +81,7 @@ export const DEMO_BUSINESSES = {
       es: {
         audioLabel: 'Llamada (ES): Cotización de reemplazo de aire central',
         transcript:
-          'Hola, tenemos un restaurante pequeño en Austin y el aire central ya hace mucho ruido. ¿Me pueden dar cita mañana temprano para cotizar un equipo nuevo?',
+          'Hola, tenemos un restaurante pequeño en Austin y el aire central hace hace mucho ruido. ¿Me pueden dar cita mañana a las ocho y media para revisar el equipo?',
         qualification: {
           caller_name: 'Carlos Méndez',
           detected_language: 'es',

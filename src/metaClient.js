@@ -227,7 +227,7 @@ export class MetaPipelineClient {
         transcript: preset.transcript,
         audioDurationMs: 9200,
         latencyMs: 0,
-        audioUrl: businessId === 'smile-dental-miami' ? `/audio/${businessId}-${lang}.wav` : null,
+        audioUrl: `/audio/${businessId}-${lang}.wav`,
         turns: [{ turnId: 0, startMs: 0, endMs: 9100, transcript: preset.transcript }],
         cached: false,
         fallback: true,
@@ -285,7 +285,7 @@ export class MetaPipelineClient {
         transcript: data.transcript || preset.transcript,
         audioDurationMs: data.audioDurationMs || 9000,
         latencyMs,
-        audioUrl: businessId === 'smile-dental-miami' ? `/audio/${businessId}-${lang}.wav` : null,
+        audioUrl: `/audio/${businessId}-${lang}.wav`,
         turns: data.turns || [],
       };
       this.guardrails.recordLiveCall({
@@ -304,11 +304,11 @@ export class MetaPipelineClient {
         transcript: preset.transcript,
         audioDurationMs: 9200,
         latencyMs: 0,
-        audioUrl: businessId === 'smile-dental-miami' ? `/audio/${businessId}-${lang}.wav` : null,
+        audioUrl: `/audio/${businessId}-${lang}.wav`,
         turns: [{ turnId: 0, startMs: 0, endMs: 9100, transcript: preset.transcript }],
         cached: false,
         fallback: true,
-        fallbackReason: err.message,
+        fallbackReason: 'preset_fallback_active',
         costUSD: 0,
       };
     }
@@ -502,7 +502,7 @@ export class MetaPipelineClient {
         usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 },
         cached: false,
         fallback: true,
-        fallbackReason: err.message,
+        fallbackReason: 'preset_fallback_active',
         costUSD: 0,
       };
     }
@@ -623,7 +623,7 @@ export class MetaPipelineClient {
         latencyMs: 0,
         cached: false,
         fallback: true,
-        fallbackReason: err.message,
+        fallbackReason: 'preset_fallback_active',
         costUSD: 0,
       };
     }
@@ -723,7 +723,7 @@ export class MetaPipelineClient {
         latencyMs: 0,
         cached: false,
         fallback: true,
-        fallbackReason: err.message,
+        fallbackReason: 'preset_fallback_active',
         costUSD: 0,
       };
     }
