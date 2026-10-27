@@ -107,7 +107,7 @@ export const FALLBACK_SAM_OUTPUT = {
       frameIndex: 0,
       objectId: 0,
       box: { x1: 142, y1: 118, x2: 710, y2: 540, width: 900, height: 600, confidence: 0.972 },
-      mask: { rows: 422, cols: 568, encoding: 'one_bit' },
+      mask: { rows: 422, cols: 568, encoding: 'one_bit', payload: '!0c[0o91w?q1!pIH4pPRVp2B3' },
     },
   ],
 };

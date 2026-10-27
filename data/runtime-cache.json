@@ -1,7 +1,7 @@
 {
   "totalSpendUSD": 0.0691527,
   "totalLiveCalls": 13,
-  "totalCacheHits": 19,
+  "totalCacheHits": 23,
   "cache": {
     "ff6de8eda6e3018f188630fa475222ec84125f42a7c00a280690bb4f43cc8fb8": {
       "key": "ff6de8eda6e3018f188630fa475222ec84125f42a7c00a280690bb4f43cc8fb8",
@@ -37,7 +37,7 @@
         "qualification": {
           "caller_name": "Marcus Vance",
           "detected_language": "en",
-          "estimated_value_usd": 1200,
+          "estimated_value_usd": 850,
           "owner_whatsapp_summary": "🚨 HIGH urgency: Cracked front dental crown eating lunch in Brickell, flying out Friday morning. Requested Tomorrow 09:30 AM - CONFIRMED AVAILABLE (Today 02:00 PM, 04:30 PM also open). Needs emergency crown repair before flight. Language: EN.",
           "preferred_slot": "Tomorrow 09:30 AM",
           "receptionist_reply": "Hi! I'm so sorry you cracked your front crown — I understand how urgent this is with your flight Friday morning. Good news: we do have an emergency slot available tomorrow at 9:30 AM at Smile Dental Clinic Brickell. Can I reserve it for you right now so we can fix it in time?",
@@ -149,7 +149,7 @@
         "qualification": {
           "caller_name": "Valeria Gómez",
           "detected_language": "es",
-          "estimated_value_usd": 250,
+          "estimated_value_usd": 620,
           "owner_whatsapp_summary": "Lead urgente: Dolor fuerte en muela desde ayer. Habla español, busca dentista en Miami. Solicita HOY 4:30 PM - slot DISPONIBLE confirmado (Today 04:30 PM). Requiere seguimiento inmediato para reservar.",
           "preferred_slot": "Today 04:30 PM",
           "receptionist_reply": "¡Hola, buenas tardes! Lamento mucho ese dolor fuerte en su muela. Claro que sí, hablamos español y somos especialistas en emergencias dentales aquí en Brickell, Miami. Sí tenemos espacio disponible hoy a las 4:30 PM para atenderle. ¿Me confirma su nombre completo para reservarle ese espacio de hoy a las 4:30 PM?",
@@ -277,7 +277,7 @@
         "qualification": {
           "caller_name": "Devon Brooks",
           "detected_language": "en",
-          "estimated_value_usd": 350,
+          "estimated_value_usd": 480,
           "owner_whatsapp_summary": "🔥 HIGH URGENCY - Upstairs AC not cooling, 94F inside with 2 kids in South Congress. Requested Today 2:00 PM - AVAILABLE and reserved. Needs tech ASAP.",
           "preferred_slot": "Today 02:00 PM",
           "receptionist_reply": "I'm so sorry you're dealing with this heat with two kids at home — I know how stressful that is. I've reserved our next available technician for you in South Congress TODAY at 2:00 PM for your upstairs AC that stopped cooling. Please keep the kids hydrated and in the coolest room downstairs if possible until we arrive. We'll see you at 2 PM!",
@@ -369,7 +369,7 @@
         "qualification": {
           "caller_name": "Carlos Méndez",
           "detected_language": "es",
-          "estimated_value_usd": 249,
+          "estimated_value_usd": 6500,
           "owner_whatsapp_summary": "Restaurante pequeño en Austin: aire central hace mucho ruido. Cliente pide revisión mañana a las 8:30 AM. Slot disponible confirmado: Tomorrow 08:30 AM. Idioma español. Urgencia media - equipo funciona pero ruidoso en negocio.",
           "preferred_slot": "Tomorrow 08:30 AM",
           "receptionist_reply": "¡Hola! Gracias por llamar a Lone Star AC & Heating. Con gusto le agendamos la revisión de su aire central para mañana a las 8:30 AM en su restaurante en Austin. El slot está disponible y un técnico revisará el ruido del equipo. ¿Me puede confirmar su nombre y la dirección del restaurante para completar la reserva?",
@@ -836,6 +836,38 @@
       "costUSD": 0,
       "cached": true,
       "createdAt": "2026-10-27T03:00:53.128Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/asr/transcribe",
+      "model": "muse-voice-transcribe-1.0",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T18:45:58.544Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/chat/completions",
+      "model": "muse-spark-1.3",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T18:45:58.554Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/responses",
+      "model": "sam-3.1",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T18:45:58.561Z"
+    },
+    {
+      "sessionId": "demo-session",
+      "endpoint": "/v1/images/generations",
+      "model": "muse-image-1.0",
+      "costUSD": 0,
+      "cached": true,
+      "createdAt": "2026-10-27T18:45:58.567Z"
     }
   ]
 }

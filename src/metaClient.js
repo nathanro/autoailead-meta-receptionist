@@ -64,7 +64,7 @@ export function parseSamSegmentationText(rawText = '') {
             maskRows = Number(m[1]);
             maskCols = Number(m[2]);
             encoding = m[3] === '!' ? 'one_bit' : 'lossless';
-            maskPayload = m[4] || '';
+            maskPayload = m[3] + (m[4] || '');
           }
         }
       }

@@ -46,6 +46,7 @@ test('SAM 3.1 special-token wire parser extracts boxes and masks accurately', ()
   assert.equal(parsed[0].mask.rows, 46);
   assert.equal(parsed[0].mask.cols, 101);
   assert.equal(parsed[0].mask.encoding, 'one_bit');
+  assert.equal(parsed[0].mask.payload, '!payload');
 });
 
 test('SpendGuardrails enforces hard budget caps and caches repeat calls at $0', async () => {
@@ -89,4 +90,52 @@ test('SpendGuardrails enforces hard budget caps and caches repeat calls at $0', 
   assert.equal(res.costUSD, 0);
   if (savedKey) process.env.META_API_KEY = savedKey;
   if (savedModelKey) process.env.MODEL_API_KEY = savedModelKey;
+});
+import { createAppServer } from '../src/server.js';
+
+test('createAppServer serves /api/health, /api/pipeline/run, /api/closer/objection, /api/closer/checkout, and /favicon.ico cleanly', async () => {
+  const { server } = createAppServer();
+  await new Promise((resolve) => server.listen(0, resolve));
+  const port = server.address().port;
+  try {
+    const healthRes = await fetch(`http://localhost:${port}/api/health`);
+    assert.equal(healthRes.status, 200);
+    const health = await healthRes.json();
+    assert.equal(health.status, 'ok');
+
+    const favRes = await fetch(`http://localhost:${port}/favicon.ico`);
+    assert.equal(favRes.status, 200);
+
+    const runRes = await fetch(`http://localhost:${port}/api/pipeline/run`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ businessId: 'lone-star-hvac-austin', lang: 'en' }),
+    });
+    assert.equal(runRes.status, 200);
+    const runData = await runRes.json();
+    assert.equal(runData.steps.reception.qualification.estimated_value_usd, 480);
+    assert.equal(runData.steps.reception.toolTrace.length, 2);
+    assert.ok(runData.steps.sam.objects[0].mask.payload.startsWith('!'));
+
+    const objRes = await fetch(`http://localhost:${port}/api/closer/objection`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ businessId: 'lone-star-hvac-austin', lang: 'en', objectionType: 'price' }),
+    });
+    assert.equal(objRes.status, 200);
+    const objData = await objRes.json();
+    assert.equal(objData.checkoutOffer.bundlePriceUSD, 480);
+
+    const payRes = await fetch(`http://localhost:${port}/api/closer/checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ businessId: 'lone-star-hvac-austin', lang: 'en' }),
+    });
+    assert.equal(payRes.status, 200);
+    const payData = await payRes.json();
+    assert.equal(payData.status, 'DEPOSIT_PAID_AND_SLOT_LOCKED');
+    assert.equal(payData.totalValueUSD, 480);
+  } finally {
+    server.close();
+  }
 });

@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="data:," />
   <title>AutoAI Lead — Live AI Receptionist & Visual Demo Engine (Meta Model API)</title>
   <style>
     :root, [data-theme="light"] {
@@ -826,6 +827,127 @@
       }
     }
 
+
+    // Official @meta-sam/parser one_bit RangeDecoder + 12-neighbor contextAt implementation
+    const SAM_EXCLUDED_CHARS = new Set(['"', '\\', ',', ';', '<', '>', '|']);
+    const SAM_ALPHABET = (() => {
+      let val = '';
+      for (let code = 0x21; code <= 0x7e; code += 1) {
+        const ch = String.fromCharCode(code);
+        if (!SAM_EXCLUDED_CHARS.has(ch)) val += ch;
+      }
+      return val;
+    })();
+    const SAM_CHAR_VALUES = new Int16Array(128).fill(-1);
+    for (let i = 0; i < SAM_ALPHABET.length; i += 1) {
+      SAM_CHAR_VALUES[SAM_ALPHABET.charCodeAt(i)] = i;
+    }
+
+    function unpackSamPayload(payload) {
+      const radix = 85;
+      const prefixLength = 5;
+      let length = 0;
+      for (let i = 0; i < prefixLength; i += 1) {
+        length = length * radix + SAM_CHAR_VALUES[payload.charCodeAt(i)];
+      }
+      const remainder = length % 4;
+      const output = new Uint8Array(length);
+      let source = prefixLength;
+      let destination = 0;
+      const full = length - remainder;
+      for (; destination < full; destination += 4) {
+        let value = 0;
+        for (let i = 0; i < 5; i += 1) {
+          value = value * radix + SAM_CHAR_VALUES[payload.charCodeAt(source + i)];
+        }
+        source += 5;
+        output[destination] = (value >>> 24) & 0xff;
+        output[destination + 1] = (value >>> 16) & 0xff;
+        output[destination + 2] = (value >>> 8) & 0xff;
+        output[destination + 3] = value & 0xff;
+      }
+      if (remainder > 0) {
+        let value = 0;
+        for (let i = 0; i < 5; i += 1) {
+          value = value * radix + (i < remainder + 1 ? SAM_CHAR_VALUES[payload.charCodeAt(source + i)] : radix - 1);
+        }
+        for (let i = 0; i < remainder; i += 1) {
+          output[destination + i] = (value >>> (24 - i * 8)) & 0xff;
+        }
+      }
+      return output;
+    }
+
+    function decodeMaskToRaster(rows, cols, rawPayload) {
+      const normPayload = rawPayload.startsWith('!') || rawPayload.startsWith('~') ? rawPayload : '!' + rawPayload;
+      const input = unpackSamPayload(normPayload.slice(1));
+      const top = 1 << 24;
+      const bottom = 1 << 16;
+      let pos = 0;
+      let low = 0;
+      let range = 0xffffffff;
+      let code = 0;
+      let scaled = 0;
+      for (let i = 0; i < 4; i += 1) {
+        code = ((code << 8) | (pos < input.length ? input[pos++] : 0)) >>> 0;
+      }
+      const counts = new Uint16Array(8192).fill(1);
+      const padding = 2;
+      const paddedWidth = cols + 2 * padding;
+      const padded = new Uint8Array(paddedWidth * (rows + padding));
+      const output = new Uint8Array(cols * rows);
+
+      for (let y = 0; y < rows; y += 1) {
+        const rowOffset = (y + padding) * paddedWidth + padding;
+        for (let x = 0; x < cols; x += 1) {
+          const p = rowOffset + x;
+          const prior = p - paddedWidth;
+          const earlier = p - 2 * paddedWidth;
+          const ctx =
+            padded[p - 1] |
+            (padded[p - 2] << 1) |
+            (padded[prior - 2] << 2) |
+            (padded[prior - 1] << 3) |
+            (padded[prior] << 4) |
+            (padded[prior + 1] << 5) |
+            (padded[prior + 2] << 6) |
+            (padded[earlier - 2] << 7) |
+            (padded[earlier - 1] << 8) |
+            (padded[earlier] << 9) |
+            (padded[earlier + 1] << 10) |
+            (padded[earlier + 2] << 11);
+          const offset = ctx << 1;
+          const zero = counts[offset];
+          const one = counts[offset + 1];
+          const total = zero + one;
+          scaled = Math.floor(range / total);
+          const val = Math.floor(((code - low) >>> 0) / scaled);
+          const freq = val >= total ? total - 1 : val;
+          const bit = freq < zero ? 0 : 1;
+          const cum = bit === 0 ? 0 : zero;
+          const symFreq = bit === 0 ? zero : one;
+          low = (low + scaled * cum) >>> 0;
+          range = scaled * symFreq;
+          while (
+            ((low ^ (low + range)) >>> 0) < top ||
+            (range < bottom && ((range = (-low >>> 0) & (bottom - 1)), true))
+          ) {
+            code = ((code << 8) | (pos < input.length ? input[pos++] : 0)) >>> 0;
+            low = (low << 8) >>> 0;
+            range = (range << 8) >>> 0;
+          }
+          padded[p] = bit;
+          output[y * cols + x] = bit;
+          counts[offset + bit] += 14;
+          if (counts[offset] + counts[offset + 1] >= 4096) {
+            counts[offset] = (counts[offset] >> 1) || 1;
+            counts[offset + 1] = (counts[offset + 1] >> 1) || 1;
+          }
+        }
+      }
+      return output;
+    }
+
     async function runPipeline() {
       const btn = document.getElementById('runBtn');
       btn.disabled = true;
@@ -966,21 +1088,33 @@
             const colorG = idx === 0 ? 185 : 99;
             const colorB = idx === 0 ? 129 : 235;
 
+            let raster = null;
+            try {
+              if (payload && payload.length >= 6) {
+                raster = decodeMaskToRaster(maskRows, maskCols, payload);
+              }
+            } catch (_) {}
+
             for (let r = 0; r < maskRows; r++) {
-              const ny = (r / maskRows) * 2 - 1;
               for (let c = 0; c < maskCols; c++) {
-                const nx = (c / maskCols) * 2 - 1;
-                const pChar = payload.length > 0 ? payload.charCodeAt((r * 7 + c * 3) % payload.length) : 75;
-                const edgeMod = ((pChar - 33) / 90) * 0.14;
-                const dist = Math.sqrt(nx * nx * 1.15 + ny * ny * 0.92);
-                const inside = dist <= (0.86 + edgeMod);
-                const isContour = inside && dist >= (0.80 + edgeMod);
+                const idxBit = r * maskCols + c;
+                const inside = raster ? raster[idxBit] === 1 : true;
                 if (inside) {
-                  const pIdx = (r * maskCols + c) * 4;
+                  const isContour =
+                    raster &&
+                    (r === 0 ||
+                      r === maskRows - 1 ||
+                      c === 0 ||
+                      c === maskCols - 1 ||
+                      raster[(r - 1) * maskCols + c] === 0 ||
+                      raster[(r + 1) * maskCols + c] === 0 ||
+                      raster[r * maskCols + (c - 1)] === 0 ||
+                      raster[r * maskCols + (c + 1)] === 0);
+                  const pIdx = idxBit * 4;
                   pixels[pIdx] = isContour ? 255 : colorR;
                   pixels[pIdx + 1] = isContour ? 255 : colorG;
                   pixels[pIdx + 2] = isContour ? 255 : colorB;
-                  pixels[pIdx + 3] = isContour ? 235 : 128;
+                  pixels[pIdx + 3] = isContour ? 245 : 138;
                 }
               }
             }
