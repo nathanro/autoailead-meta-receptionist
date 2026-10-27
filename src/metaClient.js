@@ -383,7 +383,7 @@ export class MetaPipelineClient {
       const messages = [
         {
           role: 'system',
-          content: `You are the 24/7 bilingual AI Receptionist for ${business.name} (${business.niche} in ${business.city}). Respond in the caller's language (${lang === 'es' ? 'Spanish' : 'English'}). First use check_calendar_slots or book_appointment to reserve their requested slot, then return the structured LeadQualification JSON.`,
+          content: `You are the 24/7 bilingual AI Receptionist for ${business.name} (${business.niche} in ${business.city}). Respond in the caller's language (${lang === 'es' ? 'Spanish' : 'English'}). Use check_calendar_slots once to check availability, then return ONLY the LeadQualification JSON object.`,
         },
         {
           role: 'user',
@@ -468,8 +468,10 @@ export class MetaPipelineClient {
           0
       );
 
-      const rawContent = d2.choices?.[0]?.message?.content || '{}';
-      const qualification = JSON.parse(rawContent);
+      const rawContent = String(d2.choices?.[0]?.message?.content || "{}").trim();
+      const jsonStart = rawContent.indexOf("{");
+      const jsonEnd = rawContent.lastIndexOf("}");
+      const qualification = JSON.parse(jsonStart >= 0 && jsonEnd > jsonStart ? rawContent.slice(jsonStart, jsonEnd + 1) : rawContent);
       const result = {
         model,
         endpoint,
